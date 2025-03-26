@@ -1,0 +1,9 @@
+/**
+ * 
+ */
+/**
+ * @author micae
+ *
+ */
+module SistemaDeMensajeriaInstantanea {
+}

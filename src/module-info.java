@@ -6,4 +6,5 @@
  *
  */
 module SistemaDeMensajeriaInstantanea {
+	requires java.sql;
 }

@@ -2,35 +2,61 @@ package modelo;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
+import java.util.Scanner;
 
 public class Cliente {
-    private static final String IP = "127.0.0.1"; // Server IP (localhost for testing)
-    private static final int PORT = 12345;
+   // private Contacto contacto;
+    private int puerto;
+    private String IP;
+/*
+    public Cliente(Contacto contacto) {
+		super();
+		this.contacto = contacto;	
+	}
+*/
+    public Cliente(String IP, int puerto) {
+		this.puerto = puerto;
+		this.IP = IP;
+	}
 
-    public static void main(String[] args) {
-        try {
-            Socket socket = new Socket(IP, PORT);
-            System.out.println("Connected to server!");
+	public void iniciar() throws IOException {
+	        try (//Socket socket = new Socket(contacto.getIP(), contacto.getPuerto());
+	        	Socket socket = new Socket(IP, puerto);
+	            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+	            Scanner scanner = new Scanner(System.in)) {
 
-            // Create I/O streams
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+	            //System.out.println("Conectado a " + contacto.getIP() + ":" + contacto.getPuerto());
+	            System.out.println("Conectado a " + IP + ":" + puerto);
+	        	System.out.println("Escribe un mensaje (o 'salir' para cerrar):");
 
-            String message;
-            while (true) {
-                System.out.print("Enter message (or 'exit' to quit): ");
-                message = userInput.readLine();
-                if (message.equalsIgnoreCase("exit")) break; // Stop if user types "exit"
+	            while (true) {
+	                System.out.print("> ");
+	                String message = scanner.nextLine();
 
-                out.println(message); // Send message
-                System.out.println("Server Response: " + in.readLine()); // Receive response
-            }
+	                if (message.equalsIgnoreCase("salir")) {
+	                    System.out.println("Desconectando...");
+	                    break;
+	                }
 
-            socket.close();
-            System.out.println("Disconnected from server.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	                out.println(message);
+	            }
+	        }
+    }
+    
+	public static void main(String[] args) throws IOException {
+        try (Scanner scanner = new Scanner(System.in)) {
+			// Pedir IP y puerto al usuario
+			System.out.print("Ingresa la direccion IP del servidor: ");
+			String ip = scanner.nextLine();
+
+			System.out.print("Ingresa el puerto del servidor: ");
+			int puerto = scanner.nextInt();
+
+			// Iniciar cliente con los valores ingresados
+			Cliente cliente = new Cliente(ip, puerto);
+			cliente.iniciar();
+		}
     }
 }
+

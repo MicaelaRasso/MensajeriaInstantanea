@@ -16,5 +16,10 @@ public class Usuario {
 	public int getPuerto() {
 		return puerto;
 	}
+
+	@Override
+	public String toString() {
+		return nombre;
+	}
 	
 }

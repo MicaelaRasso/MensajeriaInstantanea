@@ -36,12 +36,13 @@ public class VentanaPrincipal extends JFrame {
 		
 		spContactos = new JScrollPane();
 		spContactos.setBounds(20, 50, 150, 250);
+		spContactos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		contentPane.add(spContactos);
 		
 		JLabel lblContactos = new JLabel("Contactos");
 		lblContactos.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
 		lblContactos.setHorizontalAlignment(SwingConstants.CENTER);
-		lblContactos.setBounds(20, 15, 112, 25);
+		lblContactos.setBounds(20, 15, 93, 25);
 		contentPane.add(lblContactos);
 		
 		btnConversacion = new JButton("Iniciar conversación");
@@ -57,6 +58,7 @@ public class VentanaPrincipal extends JFrame {
 		
 		spConversacion = new JScrollPane();
 		spConversacion.setBounds(200, 50, 350, 250);
+		spConversacion.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		contentPane.add(spConversacion);
 		
 		txtrEscribirMensaje = new JTextArea();
@@ -73,7 +75,7 @@ public class VentanaPrincipal extends JFrame {
 		
 		btnContacto = new JButton("+");
 		btnContacto.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
-		btnContacto.setBounds(130, 14, 40, 30);
+		btnContacto.setBounds(123, 14, 47, 30);
 		contentPane.add(btnContacto);
 	}
 	

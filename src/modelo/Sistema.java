@@ -1,5 +1,6 @@
 package modelo;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Sistema {
@@ -22,14 +23,20 @@ public class Sistema {
 
 	public void agregarContacto(Contacto contacto) {
 		agenda.add(contacto);
-		contacto.setConversacion(new Conversacion());
+		Conversacion conv = new Conversacion();
+		contacto.setConversacion(conv);
+		conversaciones.add(conv);		
 	}
 
 	public Conversacion getConversacion(Contacto c) {
 		return c.getConversacion();
 	}
 	
-	
+
+	public void enviarMensaje(String m, Contacto contacto) {
+		Mensaje mensaje = new Mensaje(usuario, m, LocalDateTime.now());
+		contacto.getConversacion().recibirMensaje(mensaje);		
+	}	
 	
 	//Getters
 	
@@ -48,5 +55,6 @@ public class Sistema {
 	public ArrayList<Conversacion> getConversaciones() {
 		return conversaciones;
 	}
+
 
 }

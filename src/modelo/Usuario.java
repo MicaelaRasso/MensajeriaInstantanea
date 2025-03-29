@@ -4,10 +4,10 @@ public class Usuario {
 	private String nombre;
 	private int puerto;
 	
-	public Usuario(String nombre, int i) {
+	public Usuario(String nombre, int puerto) {
 		super();
 		this.nombre = nombre;
-		this.puerto = i;
+		this.puerto = puerto;
 	}
 	
 	public String getNombre() {

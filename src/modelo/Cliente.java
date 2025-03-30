@@ -6,20 +6,14 @@ import java.time.LocalDateTime;
 import java.util.Scanner;
 
 public class Cliente {
-   // private Contacto contacto;
     private int puerto;
     private String IP;
-/*
-    public Cliente(Contacto contacto) {
-		super();
-		this.contacto = contacto;	
-	}
-*/
+
     public Cliente(String IP, int puerto) {
 		this.puerto = puerto;
 		this.IP = IP;
 	}
-
+/*
 	public void iniciar() throws IOException {
 	        try (//Socket socket = new Socket(contacto.getIP(), contacto.getPuerto());
 	        	Socket socket = new Socket(IP, puerto);
@@ -43,7 +37,7 @@ public class Cliente {
 	            }
 	        }
     }
-    
+*/    
 	public static void main(String[] args) throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
 			// Pedir IP y puerto al usuario
@@ -55,8 +49,16 @@ public class Cliente {
 
 			// Iniciar cliente con los valores ingresados
 			Cliente cliente = new Cliente(ip, puerto);
-			cliente.iniciar();
+			//cliente.iniciar();
 		}
     }
+
+	public void enviarMensaje(Mensaje mensaje) throws IOException {
+		try (Socket socket = new Socket(IP, puerto)) {
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			
+			out.println(mensaje);
+		}        
+	}
 }
 

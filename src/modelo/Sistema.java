@@ -1,5 +1,6 @@
 package modelo;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -33,9 +34,10 @@ public class Sistema {
 	}
 	
 
-	public void enviarMensaje(String m, Contacto contacto) {
+	public void enviarMensaje(String m, Contacto contacto) throws IOException {
 		Mensaje mensaje = new Mensaje(usuario, m, LocalDateTime.now());
-		contacto.getConversacion().recibirMensaje(mensaje);		
+		contacto.getConversacion().recibirMensaje(mensaje);
+		contacto.getCliente().enviarMensaje(mensaje);
 	}	
 	
 	//Getters

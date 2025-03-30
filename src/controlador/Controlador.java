@@ -2,6 +2,9 @@ package controlador;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 
 import javax.swing.BoxLayout;
@@ -24,35 +27,38 @@ public class Controlador implements ActionListener {
 	private VentanaInicio vInicio;
 	private VentanaPrincipal vPrincipal;
 	private VentanaAgregarContacto vContacto;
+	private VentanaError vError;
 	private Sistema sistema;
 	private Contacto contactoActual = null;
 	
 	
-	public Controlador(VentanaInicio vInicio, VentanaPrincipal vPrincipal, VentanaAgregarContacto vContacto) {
+	public Controlador(VentanaInicio vInicio, VentanaPrincipal vPrincipal, VentanaAgregarContacto vContacto, VentanaError vError
+) {
 		super();
 		this.vInicio = vInicio;
 		this.vPrincipal = vPrincipal;
 		this.vContacto = vContacto;
+		this.vError = vError;
 		this.vInicio.getBtnIngresar().addActionListener(this);
 		this.vPrincipal.getBtnConversacion().addActionListener(this);
 		this.vPrincipal.getBtnEnviar().addActionListener(this);
 		this.vPrincipal.getBtnContacto().addActionListener(this);
 		this.vContacto.getBtnAgregar().addActionListener(this);
+		this.vError.getBtnVolver().addActionListener(this);
 		
 	}
-
 
 	public static void main(String[] args) {
 		
 		VentanaInicio inicio = new VentanaInicio();
 		VentanaPrincipal principal = new VentanaPrincipal();
 		VentanaAgregarContacto contacto = new VentanaAgregarContacto();
+		VentanaError vError = new VentanaError();
 
-		Controlador contr = new Controlador(inicio, principal, contacto);
+
+		Controlador contr = new Controlador(inicio, principal, contacto, vError);
 
 		inicio.setVisible(true);
-		
-
 	}
 
 	@Override
@@ -60,42 +66,12 @@ public class Controlador implements ActionListener {
 		
 		//VENTANA INICIO
 		if (vInicio.getBtnIngresar().equals(e.getSource())) {
-			String nombre = vInicio.getTfNombre().getText();
-			String puerto = vInicio.getTfPuerto().getText();
-			if (!(nombre.equals("") || puerto.equals(""))) {
-
-				int p = Integer.valueOf(puerto);
-				
-				Usuario usuario = new Usuario(nombre, p); 
-				this.sistema = new Sistema(usuario);
-				
-				sistema.iniciarServidor(nombre, p);
-				
-				vInicio.setVisible(false);
-				vPrincipal.setVisible(true);
-			}
+			registroInicial();
 		}else {
 
 			//VENTANA AGREGAR CONTACTO - Crea contacto e inicia la conversación (en sistema)
 			if(vContacto.getBtnAgregar().equals(e.getSource())) {
-				String nombre = vContacto.getTfNombre().getText();
-				String ip = vContacto.getTfIP().getText();
-				String puerto = vContacto.getTfPuerto().getText();
-				if (!(nombre.equals("") || ip.equals("") || puerto.equals(""))) {
-					int p = Integer.valueOf(puerto);
-					
-					Contacto c = new Contacto(nombre, ip, p);
-					sistema.agregarContacto(c);
-					
-					cargarContactos();
-					
-					vContacto.setVisible(false);
-					
-
-			        vPrincipal.revalidate();
-			        vPrincipal.repaint();
-					vPrincipal.setVisible(true);
-				}
+				agregarContacto();					
 			}else {
 				
 				//VENTANA PRINCIPAL
@@ -109,22 +85,71 @@ public class Controlador implements ActionListener {
 					
 					//VENTANA PRINCIPAL - Presiona para enviar un mensaje
 					if (vPrincipal.getBtnEnviar().equals(e.getSource())) {
-
 						String m;
 						m = vPrincipal.getTxtrEscribirMensaje().getText();
-						sistema.enviarMensaje(m, contactoActual);
+						try {
+							sistema.enviarMensaje(m, contactoActual);
+						} catch (IOException e1) {
+							mostrarError(e.toString() + " No se pudo establecer la conexión con el socket");
+						}
 						
 					}else {
-						
 						//VENTANA PRINCIPAL - Abre la ventana de agregar contacto
 						if (vPrincipal.getBtnContacto().equals(e.getSource())) {
 							vPrincipal.setVisible(false);
 							vContacto.setVisible(true);	
+						}else {
+							if (vError.getBtnVolver().equals(e.getSource())) {
+								vError.setVisible(false);
+							}
 						}
 					}
 				}
 			}
 		}		
+	}
+
+	private void registroInicial() {
+		String nombre = vInicio.getTfNombre().getText();
+		String puerto = vInicio.getTfPuerto().getText();
+		if (!(nombre.equals("") || puerto.equals(""))) {
+
+			int p = Integer.valueOf(puerto);
+			
+			Usuario usuario = new Usuario(nombre, p); 
+			this.sistema = new Sistema(usuario);
+			
+			sistema.iniciarServidor(nombre, p);
+			
+			vInicio.setVisible(false);
+			vPrincipal.setVisible(true);
+		}
+	}
+	
+	private void agregarContacto() {
+		String nombre = vContacto.getTfNombre().getText();
+		String ip = vContacto.getTfIP().getText();
+		String puerto = vContacto.getTfPuerto().getText();
+		if (!(nombre.equals("") || ip.equals("") || puerto.equals(""))) {
+			int p = Integer.valueOf(puerto);
+			try {
+				InetAddress.getByName(ip);
+				
+				Contacto c = new Contacto(nombre, ip, p);
+				sistema.agregarContacto(c);
+				
+				cargarContactos();
+				
+				vContacto.setVisible(false);
+				
+		        vPrincipal.revalidate();
+		        vPrincipal.repaint();
+				vPrincipal.setVisible(true);
+				
+			} catch (UnknownHostException e1) {
+				mostrarError("IP inválida, ingresar una IP válida");
+			}
+		}
 	}
 
 	private void cargarContactos() {
@@ -170,7 +195,6 @@ public class Controlador implements ActionListener {
 	}
 	
 	private void mostrarError(String s) {
-		VentanaError vError = new VentanaError();
 		vError.getTxtrMensajeDeError().setText(s);
 		vError.setVisible(true);
 	}

@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import modelo.Contacto;
 import modelo.Mensaje;
@@ -90,7 +91,9 @@ public class Controlador implements ActionListener {
 						try {
 							sistema.enviarMensaje(m, contactoActual);
 						} catch (IOException e1) {
-							mostrarError(e.toString() + " No se pudo establecer la conexión con el socket");
+							mostrarError("No se pudo establecer la conexión con el socket");
+							e1.printStackTrace();
+							
 						}
 						
 					}else {
@@ -117,9 +120,14 @@ public class Controlador implements ActionListener {
 			int p = Integer.valueOf(puerto);
 			
 			Usuario usuario = new Usuario(nombre, p); 
-			this.sistema = new Sistema(usuario);
+			this.sistema = new Sistema(usuario, this);
 			
-			sistema.iniciarServidor(nombre, p);
+			try {
+				sistema.iniciarServidor(nombre, p);
+			} catch (IOException e) {
+				mostrarError("El servidor no pudo iniciar la conexion");
+				e.printStackTrace();
+			}
 			
 			vInicio.setVisible(false);
 			vPrincipal.setVisible(true);
@@ -153,45 +161,61 @@ public class Controlador implements ActionListener {
 	}
 
 	private void cargarContactos() {
-		
-		 // Modelo de la lista
-        DefaultListModel<String> contactos = new DefaultListModel<>();
-        Iterator<Contacto> it = sistema.getAgenda().iterator();
-		while(it.hasNext()) {
-			Contacto c =  it.next();
-			contactos.addElement(c.toString());
-		}
-
-		// Lista de contactos
-        JList<String> contactList = new JList<>(contactos);
-        contactList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Permite selección única
-        contactList.setVisibleRowCount(10);
+        DefaultListModel<String> modelo = new DefaultListModel<>();
        
-        vPrincipal.getSpContactos().setViewportView(contactList);
+        if (sistema!=null && !sistema.getAgenda().isEmpty()) {
+	        Iterator it = sistema.getAgenda().values().iterator();
+	        
+	        while(it.hasNext()) {
+				Contacto c =  (Contacto) it.next();
+				modelo.addElement(c.toString());
+			}
+	        
+	        JList<String> listaContactos = new JList<>(modelo);
+	        listaContactos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	
+	        listaContactos.addListSelectionListener(e -> {
+	            if (!e.getValueIsAdjusting()) {
+	                String seleccionado = listaContactos.getSelectedValue();
+	                contactoActual = sistema.getContacto(seleccionado);
+	            }
+	        });
+	
+	        vPrincipal.getSpContactos().setViewportView(listaContactos);
+        }	
+	
+	}
+	
+	public void nuevoMensaje() {
+		cargarMensajes();
+		//desde aca podria manejar las notificaciones
 	}
 	
 	private void cargarMensajes() {
-		if(contactoActual != null) {
-		//if(sistema.getAgenda().contains(contactoActual)) {
-			vPrincipal.getLblNombre().setText(contactoActual.getNombre());
-			
-			 // Panel contenedor de los mensajes
+	    if (contactoActual != null) {
+	        vPrincipal.getLblNombre().setText(contactoActual.getNombre());
+
+	        
 	        JPanel messagePanel = new JPanel();
 	        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
 
+	        // Iterar sobre los mensajes del contacto actual
 	        Iterator<Mensaje> it = sistema.getConversacion(contactoActual).getMensajes().iterator();
-			while(it.hasNext()) {
-				Mensaje m = (Mensaje) it.next();
-				JLabel label = new JLabel();
-				label.setText(m.toString());			
-				messagePanel.add(label);
-			}
-			
-			vPrincipal.getSpConversacion().setViewportView(messagePanel);
+	        while (it.hasNext()) {
+	            Mensaje m = it.next();
+	            JLabel label = new JLabel();
+	            label.setText(m.toString());
+	            messagePanel.add(label);
+	        }
 
-		}else {
-			mostrarError("Debe seleccionar un contacto antes de iniciar la conversación");
-		}
+            messagePanel.revalidate();
+            messagePanel.repaint();
+	        SwingUtilities.invokeLater(() -> {
+	            vPrincipal.getSpConversacion().setViewportView(messagePanel);
+	        });
+	    } else {
+	        mostrarError("Debe seleccionar un contacto antes de iniciar la conversación");
+	    }
 	}
 	
 	private void mostrarError(String s) {

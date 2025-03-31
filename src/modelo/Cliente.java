@@ -26,6 +26,7 @@ public class Cliente {
 			// Iniciar cliente con los valores ingresados
 			Cliente cliente = new Cliente(ip, puerto);
 			//cliente.iniciar();
+			///hola a ver si rompo todo
 		}
     }
 */

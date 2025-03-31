@@ -1,37 +1,30 @@
 package modelo;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Conversacion {
-	private Usuario emisor;
-	private Usuario receptor;
 	private ArrayList<Mensaje> mensajes = new ArrayList<Mensaje>();
 	
-	public Conversacion(Usuario emisor, Usuario receptor, ArrayList<Mensaje> mensajes) {
-		super();
-		this.emisor = emisor;
-		this.receptor = receptor;
-		this.mensajes = mensajes;
-	}
+	public Conversacion() {}
 	
 	//Metodos
 	
-	public void recibirMensaje(Mensaje mensaje) {
+	public void recibirMensaje(String contenido, String fechaYHoraStr, Contacto c) {
+	    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;  // El formato que tienes es ISO 8601
+        LocalDateTime fechaYHora = LocalDateTime.parse(fechaYHoraStr, formatter);
+        mensajes.add(new Mensaje(c, contenido, fechaYHora));
+        System.out.println("Actualmente, hay "+mensajes.size()+" mensajes en esta conversacion");
+        
+	}
+
+	public void enviarMensaje(Mensaje mensaje, Contacto contacto) {
 		mensajes.add(mensaje);
 	}
 	
 	//Getters
-	
-	public Usuario getEmisor() {
-		return emisor;
-	}
-	public Usuario getReceptor() {
-		return receptor;
-	}
 	public ArrayList<Mensaje> getMensajes() {
 		return mensajes;
 	}
-
-
-	
 }

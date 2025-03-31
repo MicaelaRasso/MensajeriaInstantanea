@@ -15,8 +15,6 @@ public class Conversacion {
 	    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;  // El formato que tienes es ISO 8601
         LocalDateTime fechaYHora = LocalDateTime.parse(fechaYHoraStr, formatter);
         mensajes.add(new Mensaje(c, contenido, fechaYHora));
-        System.out.println("Actualmente, hay "+mensajes.size()+" mensajes en esta conversacion");
-        
 	}
 
 	public void enviarMensaje(Mensaje mensaje, Contacto contacto) {

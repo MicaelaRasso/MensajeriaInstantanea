@@ -49,7 +49,6 @@ public class Sistema {
 	}	
 
 	public void recibirMensaje(String s) {
-	    System.out.println("Mensaje recibido en Sistema: " + s); // DEBUG
 	    try {
 	        String[] partes = s.split("//");
 
@@ -61,7 +60,12 @@ public class Sistema {
 	            Contacto cont = agenda.get(nombre);
 
 	            cont.recibirMensaje(contenido, fechaYHoraStr);
-	            SwingUtilities.invokeLater(() -> controlador.nuevoMensaje());
+	            SwingUtilities.invokeLater(() -> 
+	            		{
+	            			controlador.nuevoMensaje();
+	        	            controlador.notificarMensaje(cont);
+	            		});
+
 
 	        }
 	    } catch (Exception e) {

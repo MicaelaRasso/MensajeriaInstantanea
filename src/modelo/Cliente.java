@@ -13,7 +13,7 @@ public class Cliente {
 		this.puerto = puerto;
 		this.IP = IP;
 	}
-    
+/*    
 	public static void main(String[] args) throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
 			// Pedir IP y puerto al usuario
@@ -28,7 +28,7 @@ public class Cliente {
 			//cliente.iniciar();
 		}
     }
-
+*/
 	public void enviarMensaje(Mensaje mensaje) throws IOException {
 		try (Socket socket = new Socket(IP, puerto)) {
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);

@@ -13,31 +13,7 @@ public class Cliente {
 		this.puerto = puerto;
 		this.IP = IP;
 	}
-/*
-	public void iniciar() throws IOException {
-	        try (//Socket socket = new Socket(contacto.getIP(), contacto.getPuerto());
-	        	Socket socket = new Socket(IP, puerto);
-	            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-	            Scanner scanner = new Scanner(System.in)) {
-
-	            //System.out.println("Conectado a " + contacto.getIP() + ":" + contacto.getPuerto());
-	            System.out.println("Conectado a " + IP + ":" + puerto);
-	        	System.out.println("Escribe un mensaje (o 'salir' para cerrar):");
-
-	            while (true) {
-	                System.out.print("> ");
-	                String message = scanner.nextLine();
-
-	                if (message.equalsIgnoreCase("salir")) {
-	                    System.out.println("Desconectando...");
-	                    break;
-	                }
-
-	                out.println(message);
-	            }
-	        }
-    }
-*/    
+    
 	public static void main(String[] args) throws IOException {
         try (Scanner scanner = new Scanner(System.in)) {
 			// Pedir IP y puerto al usuario
@@ -56,8 +32,10 @@ public class Cliente {
 	public void enviarMensaje(Mensaje mensaje) throws IOException {
 		try (Socket socket = new Socket(IP, puerto)) {
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-			
-			out.println(mensaje);
+			    String mensajeStr = mensaje.getUsuario().getNombre() + "//" +
+			                        mensaje.getContenido() + "//" +
+			                        mensaje.getFechaYHora().toString();
+			out.println(mensajeStr);
 		}        
 	}
 }

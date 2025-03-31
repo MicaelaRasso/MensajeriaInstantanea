@@ -49,30 +49,23 @@ public class Sistema {
 	}	
 
 	public void recibirMensaje(String s) {
-	    System.out.println(s); //1
+	    System.out.println("Mensaje recibido en Sistema: " + s); // DEBUG
 	    try {
-	        String[] partes = s.split("\n");
-	        if(partes.length == 3) {
+	        String[] partes = s.split("//");
+
+	        if (partes.length == 3) {
 	            String nombre = partes[0].replace(":", "").trim();
-	            String contenido = partes[1].trim();  // Contenido del mensaje
-	            String fechaYHoraStr = partes[2].trim();  // Fecha y hora
+	            String contenido = partes[1].trim();
+	            String fechaYHoraStr = partes[2].trim();
 
-	            // Verifica que 'cont' no sea null
 	            Contacto cont = agenda.get(nombre);
-	            if (cont == null) {
-	                System.out.println("No se encontró el contacto: " + nombre);
-	                return; // Termina el método si el contacto no existe
-	            }
 
-	            cont.recibirMensaje(contenido, fechaYHoraStr);  // Esto puede lanzar excepciones
+	            cont.recibirMensaje(contenido, fechaYHoraStr);
+	            SwingUtilities.invokeLater(() -> controlador.nuevoMensaje());
 
-	            controlador.nuevoMensaje();
-	            
-	            System.out.println("Se recibió el mensaje"); //2
 	        }
 	    } catch (Exception e) {
-	        e.printStackTrace();  // Registra la excepción para investigar el error
-	        System.out.println("Hubo un error al procesar el mensaje.");
+	        e.printStackTrace();
 	    }
 	}
 	

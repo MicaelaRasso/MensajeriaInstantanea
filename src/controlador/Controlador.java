@@ -1,17 +1,23 @@
 package controlador;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
@@ -92,10 +98,11 @@ public class Controlador implements ActionListener {
 							sistema.enviarMensaje(m, contactoActual);
 						} catch (IOException e1) {
 							mostrarError("No se pudo establecer la conexión con el socket");
-							e1.printStackTrace();
-							
 						}
 						
+					    SwingUtilities.invokeLater(() -> {
+					        cargarMensajes();
+					    });
 					}else {
 						//VENTANA PRINCIPAL - Abre la ventana de agregar contacto
 						if (vPrincipal.getBtnContacto().equals(e.getSource())) {
@@ -187,19 +194,81 @@ public class Controlador implements ActionListener {
 	}
 	
 	public void nuevoMensaje() {
-		cargarMensajes();
-		//desde aca podria manejar las notificaciones
+	    SwingUtilities.invokeLater(() -> {
+	        cargarMensajes();
+	    });
 	}
 	
 	private void cargarMensajes() {
 	    if (contactoActual != null) {
 	        vPrincipal.getLblNombre().setText(contactoActual.getNombre());
 
-	        
 	        JPanel messagePanel = new JPanel();
 	        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
 
 	        // Iterar sobre los mensajes del contacto actual
+	        Iterator<Mensaje> it = sistema.getConversacion(contactoActual).getMensajes().iterator();
+	        while (it.hasNext()) {
+	            Mensaje m = it.next();
+
+	            // Formatear la fecha
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	            String fechaFormateada = m.getFechaYHora().format(formatter);
+
+	            // Crear panel para cada mensaje
+	            JPanel panelMensaje = new JPanel();
+	            panelMensaje.setLayout(new BoxLayout(panelMensaje, BoxLayout.Y_AXIS));
+	            panelMensaje.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+
+	            // Crear label para el nombre de usuario
+	            JLabel lblUsuario = new JLabel("De: " + m.getUsuario().getNombre());
+	            lblUsuario.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
+
+	            // Crear JTextArea para el contenido del mensaje
+	            JTextArea txtrContenido = new JTextArea(m.getContenido());
+	            txtrContenido.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 12));
+	            txtrContenido.setLineWrap(true);  // Permite el salto de línea automático
+	            txtrContenido.setWrapStyleWord(true); // Hace que el salto de línea sea más limpio
+	            txtrContenido.setEditable(false);  // No editable
+	            txtrContenido.setBackground(new Color(240, 240, 240));  // Fondo gris claro
+	            txtrContenido.setPreferredSize(new Dimension(300, 30)); // Ajusta el tamaño según necesidad
+
+	            // Crear label para la fecha
+	            JLabel lblFecha = new JLabel(fechaFormateada);
+	            lblFecha.setFont(new Font("Segoe UI", Font.ITALIC, 10));
+
+	            // Agregar los componentes al panel del mensaje
+	            panelMensaje.add(lblUsuario);
+	            panelMensaje.add(txtrContenido);  // Usamos el JTextArea aquí
+	            panelMensaje.add(lblFecha);
+
+	            // Ajustar el tamaño del panel al tamaño del messagePanel
+	            panelMensaje.setMaximumSize(new Dimension(Integer.MAX_VALUE, panelMensaje.getPreferredSize().height));
+
+	            // Agregar el panel del mensaje al panel general
+	            messagePanel.add(panelMensaje);
+	        }
+
+	        messagePanel.revalidate();
+	        messagePanel.repaint();
+	        
+	        // Actualizar la vista
+	        SwingUtilities.invokeLater(() -> {
+	            vPrincipal.getSpConversacion().setViewportView(messagePanel);
+	        });
+	    } else {
+	        mostrarError("Debe seleccionar un contacto antes de iniciar la conversación");
+	    }
+	}
+
+	/*
+	private void cargarMensajes() {
+	    if (contactoActual != null) {
+	        vPrincipal.getLblNombre().setText(contactoActual.getNombre());
+
+	        JPanel messagePanel = new JPanel();
+	        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
+
 	        Iterator<Mensaje> it = sistema.getConversacion(contactoActual).getMensajes().iterator();
 	        while (it.hasNext()) {
 	            Mensaje m = it.next();
@@ -208,8 +277,10 @@ public class Controlador implements ActionListener {
 	            messagePanel.add(label);
 	        }
 
-            messagePanel.revalidate();
-            messagePanel.repaint();
+	        messagePanel.revalidate();
+	        messagePanel.repaint();
+
+	        // Actualizar la vista en el hilo de eventos de Swing
 	        SwingUtilities.invokeLater(() -> {
 	            vPrincipal.getSpConversacion().setViewportView(messagePanel);
 	        });
@@ -217,6 +288,7 @@ public class Controlador implements ActionListener {
 	        mostrarError("Debe seleccionar un contacto antes de iniciar la conversación");
 	    }
 	}
+*/
 	
 	private void mostrarError(String s) {
 		vError.getTxtrMensajeDeError().setText(s);

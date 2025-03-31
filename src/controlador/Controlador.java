@@ -18,6 +18,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
@@ -100,7 +101,7 @@ public class Controlador implements ActionListener {
 						try {
 							sistema.enviarMensaje(m, contactoActual);
 						} catch (IOException e1) {
-							mostrarError("No se pudo establecer la conexión con el socket");
+							JOptionPane.showMessageDialog(null, "No se pudo establecer la conexión con el socket");
 						}
 						
 					    SwingUtilities.invokeLater(() -> {
@@ -128,19 +129,20 @@ public class Controlador implements ActionListener {
 		if (!(nombre.equals("") || puerto.equals(""))) {
 
 			int p = Integer.valueOf(puerto);
-			
-			Usuario usuario = new Usuario(nombre, p); 
-			this.sistema = new Sistema(usuario, this);
-			
-			try {
-				sistema.iniciarServidor(nombre, p);
-			} catch (IOException e) {
-				mostrarError("El servidor no pudo iniciar la conexion");
-				e.printStackTrace();
+			if (!Sistema.isPortAvailable(p)) {
+				JOptionPane.showMessageDialog(null, "El puerto no es valido");
+			} else {
+				Usuario usuario = new Usuario(nombre, p); 
+				this.sistema = new Sistema(usuario, this);
+				
+				try {
+					sistema.iniciarServidor(nombre, p);
+					vInicio.setVisible(false);
+					vPrincipal.setVisible(true);
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "El puerto esta siendo utilizado");
+				}
 			}
-			
-			vInicio.setVisible(false);
-			vPrincipal.setVisible(true);
 		}
 	}
 	
@@ -155,6 +157,7 @@ public class Controlador implements ActionListener {
 				
 				Contacto c = new Contacto(nombre, ip, p);
 				sistema.agregarContacto(c);
+				JOptionPane.showMessageDialog(null, "Contacto agregado exitosamente");
 				
 				cargarContactos();
 				
@@ -165,7 +168,7 @@ public class Controlador implements ActionListener {
 				vPrincipal.setVisible(true);
 				
 			} catch (UnknownHostException e1) {
-				mostrarError("IP inválida, ingresar una IP válida");
+				JOptionPane.showMessageDialog(null, "IP inválida, ingresar una IP válida");
 			}
 		}
 	}
@@ -198,8 +201,9 @@ public class Controlador implements ActionListener {
         }	
 	
 	}
-
+	
 	public void notificarMensaje(Contacto cont) {
+		cargarContactos();
 		if(!cont.equals(contactoActual)) {
 			JList<String> listaContactos = (JList<String>) vPrincipal.getSpContactos().getViewport().getView();
 			DefaultListModel<String> modelo = (DefaultListModel<String>) listaContactos.getModel();
@@ -276,13 +280,8 @@ public class Controlador implements ActionListener {
 	            vPrincipal.getSpConversacion().setViewportView(messagePanel);
 	        });
 	    } else {
-	        mostrarError("Debe seleccionar un contacto antes de iniciar la conversación");
+	    	JOptionPane.showMessageDialog(null, "Debe seleccionar un contacto antes de iniciar la conversación");
 	    }
-	}
-	
-	private void mostrarError(String s) {
-		vError.getTxtrMensajeDeError().setText(s);
-		vError.setVisible(true);
 	}
 	
 	public Sistema getSistema() {

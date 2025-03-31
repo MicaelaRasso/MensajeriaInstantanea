@@ -15,32 +15,45 @@ public class Servidor {
         this.sistema = sistema;
     }
 
+    public static boolean isPortAvailable(int port) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     // Método para iniciar el servidor en un hilo separado
-    public void iniciar() {
+    public void iniciar() throws IOException {
         Runnable servidorRunnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    // Crear un ServerSocket para escuchar conexiones
+                    if (!isPortAvailable(puerto)) {
+                        throw new IOException("Error: Puerto " + puerto + " no disponible.");
+                    }
+                    
                     serverSocket = new ServerSocket(puerto);
                     System.out.println("Servidor escuchando en el puerto " + puerto);
 
-                    // Aceptar conexiones de clientes
                     while (true) {
                         Socket socket = serverSocket.accept();
                         new ClientHandler(socket).start(); // Manejar cada cliente en un hilo
                     }
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    try {
+                        throw e;
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         };
-        
-        // Iniciar el hilo del servidor
-        Thread servidorThread = new Thread(servidorRunnable);
-        servidorThread.start(); // Esto inicia el servidor en un hilo separado
+        new Thread(servidorRunnable).start();
     }
+
+
     
     public void terminar() throws IOException {
         if (serverSocket != null) {
@@ -64,7 +77,7 @@ public class Servidor {
                         break; // Salir del bucle si el cliente envía "exit"
                     }
                     try {
-						sistema.recibirMensaje(message);
+						sistema.recibirMensaje(message, socket.getInetAddress().getHostAddress(), socket.getPort());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}                    

@@ -14,7 +14,7 @@ public class Sistema {
 	private Usuario usuario;
 	private HashMap<String,Contacto> agenda = new HashMap<String,Contacto>();
 	private ArrayList<Conversacion> conversaciones = new ArrayList<Conversacion>();
-	private Servidor servidor;
+	private static Servidor servidor;
 	private Controlador controlador;
 
 	public Sistema(Usuario usuario, Controlador controlador) {
@@ -26,8 +26,8 @@ public class Sistema {
 
 	public void iniciarServidor(String nombre, int puerto) throws IOException {
 		this.usuario = new Usuario(nombre, puerto);
-		this.servidor = new Servidor(puerto, this);
-		this.servidor.iniciar();
+		Sistema.servidor = new Servidor(puerto, this);
+		Sistema.servidor.iniciar();
 	}
 
 	public void agregarContacto(Contacto contacto) {
@@ -48,7 +48,7 @@ public class Sistema {
 		contacto.getCliente().enviarMensaje(mensaje);
 	}	
 
-	public void recibirMensaje(String s) {
+	public void recibirMensaje(String s, String ip, int puerto) {
 	    try {
 	        String[] partes = s.split("//");
 
@@ -56,8 +56,18 @@ public class Sistema {
 	            String nombre = partes[0].replace(":", "").trim();
 	            String contenido = partes[1].trim();
 	            String fechaYHoraStr = partes[2].trim();
-
-	            Contacto cont = agenda.get(nombre);
+	            Contacto cont;
+	            if(agenda.containsKey(nombre)) {
+	            	cont = agenda.get(nombre);
+	            } else {
+	            	// Si el contacto no existe, lo agregamos a la agenda
+	            	cont = new Contacto(nombre, ip, puerto);
+	            	agenda.put(nombre, cont);
+	            	Conversacion conv = new Conversacion();
+	            	cont.setConversacion(conv);
+	            	conversaciones.add(conv);
+	            }
+	            
 
 	            cont.recibirMensaje(contenido, fechaYHoraStr);
 	            SwingUtilities.invokeLater(() -> 
@@ -94,6 +104,11 @@ public class Sistema {
 
 	public HashMap<String, Contacto> getAgenda() {
 		return agenda;
+	}
+
+	public static boolean isPortAvailable(int p) {
+		
+		return Servidor.isPortAvailable(p);
 	}
 
 	

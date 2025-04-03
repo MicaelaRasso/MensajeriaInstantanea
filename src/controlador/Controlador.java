@@ -25,11 +25,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
 import modelo.Contacto;
+import modelo.Conversacion;
 import modelo.Mensaje;
 import modelo.Sistema;
 import modelo.Usuario;
 import vista.VentanaAgregarContacto;
-import vista.VentanaError;
 import vista.VentanaInicio;
 import vista.VentanaPrincipal;
 
@@ -37,25 +37,21 @@ public class Controlador implements ActionListener {
 	private VentanaInicio vInicio;
 	private VentanaPrincipal vPrincipal;
 	private VentanaAgregarContacto vContacto;
-	private VentanaError vError;
 	private Sistema sistema;
 	private Contacto contactoActual = null;
 	
 	
-	public Controlador(VentanaInicio vInicio, VentanaPrincipal vPrincipal, VentanaAgregarContacto vContacto, VentanaError vError
-) {
+	public Controlador(VentanaInicio vInicio, VentanaPrincipal vPrincipal, VentanaAgregarContacto vContacto) {
 		super();
 		this.vInicio = vInicio;
 		this.vPrincipal = vPrincipal;
 		this.vContacto = vContacto;
-		this.vError = vError;
 		this.vInicio.getBtnIngresar().addActionListener(this);
 		this.vPrincipal.getBtnConversacion().addActionListener(this);
 		this.vPrincipal.getBtnEnviar().addActionListener(this);
 		this.vPrincipal.getBtnContacto().addActionListener(this);
 		this.vContacto.getBtnAgregar().addActionListener(this);
-		this.vError.getBtnVolver().addActionListener(this);
-		
+		this.vContacto.getBtnVolver().addActionListener(this);
 	}
 
 	public static void main(String[] args) {
@@ -63,10 +59,8 @@ public class Controlador implements ActionListener {
 		VentanaInicio inicio = new VentanaInicio();
 		VentanaPrincipal principal = new VentanaPrincipal();
 		VentanaAgregarContacto contacto = new VentanaAgregarContacto();
-		VentanaError vError = new VentanaError();
 
-
-		Controlador contr = new Controlador(inicio, principal, contacto, vError);
+		Controlador contr = new Controlador(inicio, principal, contacto);
 
 		inicio.setVisible(true);
 	}
@@ -87,6 +81,7 @@ public class Controlador implements ActionListener {
 				//VENTANA PRINCIPAL
 				if(vPrincipal.getBtnConversacion().equals(e.getSource())) {
 					cargarContactos();
+					cargarConversaciones();
 					cargarMensajes();
 
 			        vPrincipal.revalidate();
@@ -113,8 +108,10 @@ public class Controlador implements ActionListener {
 							vPrincipal.setVisible(false);
 							vContacto.setVisible(true);	
 						}else {
-							if (vError.getBtnVolver().equals(e.getSource())) {
-								vError.setVisible(false);
+							//VENTANA AGREGAR CONTACTO - Volver a la ventana principal
+							if(vContacto.getBtnVolver().equals(e.getSource())) {
+								vPrincipal.setVisible(true);
+								vContacto.setVisible(false);	
 							}
 						}
 					}
@@ -152,23 +149,28 @@ public class Controlador implements ActionListener {
 		String puerto = vContacto.getTfPuerto().getText();
 		if (!(nombre.equals("") || ip.equals("") || puerto.equals(""))) {
 			int p = Integer.valueOf(puerto);
-			try {
-				InetAddress.getByName(ip);
+			if(sistema.getAgenda().containsKey(nombre)){
+				//Los nicknames son unicos, no debería suceder
+				JOptionPane.showMessageDialog(null,"Se ha intentado cargar un usuario con un nombre repetido, volver a intentar");
+			}else {
+				try {
+					InetAddress.getByName(ip);
+					
+					Contacto c = new Contacto(nombre, ip, p);
+					sistema.agregarContacto(c);
 				
-				Contacto c = new Contacto(nombre, ip, p);
-				sistema.agregarContacto(c);
-				JOptionPane.showMessageDialog(null, "Contacto agregado exitosamente");
-				
-				cargarContactos();
-				
-				vContacto.setVisible(false);
-				
-		        vPrincipal.revalidate();
-		        vPrincipal.repaint();
-				vPrincipal.setVisible(true);
-				
-			} catch (UnknownHostException e1) {
-				JOptionPane.showMessageDialog(null, "IP inválida, ingresar una IP válida");
+					cargarContactos();
+					
+					vContacto.setVisible(false);
+					
+			        vPrincipal.revalidate();
+			        vPrincipal.repaint();
+					vPrincipal.setVisible(true);
+					JOptionPane.showMessageDialog(null, "Se ha agregado el contacto " + nombre);
+					
+				} catch (UnknownHostException e1) {
+					JOptionPane.showMessageDialog(null, "IP inválida, ingresar una IP válida");
+				}
 			}
 		}
 	}
@@ -177,7 +179,7 @@ public class Controlador implements ActionListener {
         DefaultListModel<String> modelo = new DefaultListModel<>();
        
         if (sistema!=null && !sistema.getAgenda().isEmpty()) {
-	        Iterator it = sistema.getAgenda().values().iterator();
+	        Iterator<Contacto> it = sistema.getAgenda().values().iterator();
 	        
 	        while(it.hasNext()) {
 				Contacto c =  (Contacto) it.next();
@@ -283,6 +285,40 @@ public class Controlador implements ActionListener {
 	    	JOptionPane.showMessageDialog(null, "Debe seleccionar un contacto antes de iniciar la conversación");
 	    }
 	}
+
+	private void cargarConversaciones() {
+        DefaultListModel<String> modelo = new DefaultListModel<>();
+       
+        if (sistema!=null && !sistema.getConversaciones().isEmpty()) {
+	        Iterator<Conversacion> it = sistema.getConversaciones().iterator();
+	        
+	        while(it.hasNext()) {
+	        	Conversacion c = (Conversacion) it.next();
+				modelo.addElement(c.getContacto().toString());
+			}
+	        
+	        JList<String> listaConversaciones = new JList<>(modelo);
+	        listaConversaciones.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	
+	        listaConversaciones.addListSelectionListener(e -> {
+	            if (!e.getValueIsAdjusting()) {
+	                String seleccionado = listaConversaciones.getSelectedValue();
+	                if(sistema.getAgenda().containsKey(seleccionado)) {
+	                	this.contactoActual = sistema.getContacto(seleccionado);
+		                this.cargarMensajes();
+	                }
+	                else {
+	                	JOptionPane.showMessageDialog(null,  "Error al seleccionar la conversacion");
+	                }
+	            }
+	        });
+	
+	        vPrincipal.getSpConversaciones().setViewportView(listaConversaciones);
+        }	
+	
+	}
+
+	
 	
 	public Sistema getSistema() {
 		return sistema;

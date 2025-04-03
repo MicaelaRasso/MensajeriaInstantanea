@@ -32,7 +32,7 @@ public class Sistema {
 
 	public void agregarContacto(Contacto contacto) {
 		agenda.put(contacto.getNombre(), contacto);
-		Conversacion conv = new Conversacion();
+		Conversacion conv = new Conversacion(contacto);
 		contacto.setConversacion(conv);
 		conversaciones.add(conv);		
 	}
@@ -63,7 +63,7 @@ public class Sistema {
 	            	// Si el contacto no existe, lo agregamos a la agenda
 	            	cont = new Contacto(nombre, ip, puerto);
 	            	agenda.put(nombre, cont);
-	            	Conversacion conv = new Conversacion();
+	            	Conversacion conv = new Conversacion(cont);
 	            	cont.setConversacion(conv);
 	            	conversaciones.add(conv);
 	            }

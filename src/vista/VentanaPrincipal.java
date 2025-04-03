@@ -22,11 +22,12 @@ public class VentanaPrincipal extends JFrame {
 	private JScrollPane spConversacion;	
 	private JLabel lblNombre;
 	private JButton btnContacto;
+	private JScrollPane spConversaciones;
 	
 
 	public VentanaPrincipal() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 600, 400);
+		setBounds(100, 100, 600, 500);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -34,19 +35,19 @@ public class VentanaPrincipal extends JFrame {
 		contentPane.setLayout(null);
 		
 		spContactos = new JScrollPane();
-		spContactos.setBounds(20, 50, 150, 250);
+		spContactos.setBounds(20, 50, 150, 160);
 		spContactos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		contentPane.add(spContactos);
 		
 		JLabel lblContactos = new JLabel("Contactos");
 		lblContactos.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-		lblContactos.setHorizontalAlignment(SwingConstants.CENTER);
+		lblContactos.setHorizontalAlignment(SwingConstants.LEFT);
 		lblContactos.setBounds(20, 15, 93, 25);
 		contentPane.add(lblContactos);
 		
 		btnConversacion = new JButton("Iniciar conversación");
 		btnConversacion.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
-		btnConversacion.setBounds(20, 310, 150, 25);
+		btnConversacion.setBounds(20, 210, 150, 25);
 		contentPane.add(btnConversacion);
 		
 		lblNombre = new JLabel("Nombre de usuario");
@@ -56,26 +57,38 @@ public class VentanaPrincipal extends JFrame {
 		contentPane.add(lblNombre);
 		
 		spConversacion = new JScrollPane();
-		spConversacion.setBounds(200, 50, 350, 250);
+		spConversacion.setBounds(200, 101, 350, 349);
 		spConversacion.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		contentPane.add(spConversacion);
 		
 		txtrEscribirMensaje = new JTextArea();
+		txtrEscribirMensaje.setLineWrap(true);
 		txtrEscribirMensaje.setToolTipText("Escribir mensaje...");
 		txtrEscribirMensaje.setTabSize(3);
 		txtrEscribirMensaje.setForeground(new Color(0, 0, 0));
 		txtrEscribirMensaje.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 12));
-		txtrEscribirMensaje.setBounds(200, 310, 290, 40);
+		txtrEscribirMensaje.setBounds(200, 50, 290, 40);
 		contentPane.add(txtrEscribirMensaje);
 		
-		btnEnviar = new JButton("");
-		btnEnviar.setBounds(500, 310, 50, 40);
+		btnEnviar = new JButton(">");
+		btnEnviar.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnEnviar.setBounds(500, 50, 50, 40);
 		contentPane.add(btnEnviar);
 		
 		btnContacto = new JButton("+");
 		btnContacto.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
 		btnContacto.setBounds(123, 14, 47, 30);
 		contentPane.add(btnContacto);
+		
+		spConversaciones = new JScrollPane();
+		spConversaciones.setBounds(20, 270, 150, 180);
+		contentPane.add(spConversaciones);
+		
+		JLabel lblConversaciones = new JLabel("Conversaciones");
+		lblConversaciones.setHorizontalAlignment(SwingConstants.LEFT);
+		lblConversaciones.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+		lblConversaciones.setBounds(20, 240, 150, 25);
+		contentPane.add(lblConversaciones);
 	}
 	
 	public JPanel getContentPane() {
@@ -109,4 +122,9 @@ public class VentanaPrincipal extends JFrame {
 	public JButton getBtnContacto() {
 		return btnContacto;
 	}
+
+	public JScrollPane getSpConversaciones() {
+		return spConversaciones;
+	}
+	
 }

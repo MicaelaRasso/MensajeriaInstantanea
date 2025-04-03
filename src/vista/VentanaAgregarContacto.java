@@ -20,6 +20,7 @@ public class VentanaAgregarContacto extends JFrame {
 	private JTextField tfIP;
 	private JTextField tfPuerto;
 	private JButton btnAgregar;
+	private JButton btnVolver;
 
 	public VentanaAgregarContacto() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,13 +65,14 @@ public class VentanaAgregarContacto extends JFrame {
 		contentPane.add(tfPuerto);
 		
 		btnAgregar = new JButton("Agregar");
-		btnAgregar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		btnAgregar.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
-		btnAgregar.setBounds(90, 259, 90, 23);
+		btnAgregar.setBounds(150, 259, 90, 23);
 		contentPane.add(btnAgregar);
+		
+		btnVolver = new JButton("Volver");
+		btnVolver.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
+		btnVolver.setBounds(40, 260, 90, 23);
+		contentPane.add(btnVolver);
 	}
 
 	public JPanel getContentPane() {
@@ -92,5 +94,8 @@ public class VentanaAgregarContacto extends JFrame {
 	public JButton getBtnAgregar() {
 		return btnAgregar;
 	}
-
+	
+	public JButton getBtnVolver() {
+		return btnVolver;
+	}
 }

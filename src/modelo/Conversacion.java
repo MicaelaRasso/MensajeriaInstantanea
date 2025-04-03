@@ -5,9 +5,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Conversacion {
+	private Contacto contacto;
 	private ArrayList<Mensaje> mensajes = new ArrayList<Mensaje>();
 	
-	public Conversacion() {}
+	public Conversacion(Contacto contacto) {
+		this.contacto = contacto;
+	}
 	
 	//Metodos
 	
@@ -25,4 +28,9 @@ public class Conversacion {
 	public ArrayList<Mensaje> getMensajes() {
 		return mensajes;
 	}
+
+	public Contacto getContacto() {
+		return contacto;
+	}
+	
 }

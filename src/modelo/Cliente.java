@@ -2,25 +2,58 @@ package modelo;
 
 import java.io.*;
 import java.net.*;
-import java.time.LocalDateTime;
-import java.util.Scanner;
 
 public class Cliente {
-    private int puerto;
+    private Socket socket;
+    private PrintWriter out;
     private String IP;
+    private int puerto;
 
-    public Cliente(String IP, int puerto) {
-		this.puerto = puerto;
-		this.IP = IP;
-	}
+    public Cliente(String IP, int puerto) throws IOException {
+        this.IP = IP;
+        this.puerto = puerto;
+        conectar();
+    }
 
-	public void enviarMensaje(Mensaje mensaje) throws IOException {
-		try (Socket socket = new Socket(IP, puerto)) {
-			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-			    String mensajeStr = mensaje.getUsuario().getNombre() + "//" +
-			                        mensaje.getContenido() + "//" +
-			                        mensaje.getFechaYHora().toString();
-			out.println(mensajeStr);
-		}        
-	}
+    private void conectar() throws IOException {
+        try {
+            this.socket = new Socket(IP, puerto);
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+            System.out.println("Conectado con " + IP + ":" + puerto);
+        } catch (IOException e) {
+            System.err.println("Error al conectar con " + IP + ":" + puerto + " - " + e.getMessage());
+            throw e;  // Propagamos la excepción para que `Contacto` o `Sistema` la maneje
+        }
+    }
+
+    public void enviarMensaje(Mensaje mensaje) throws IOException {
+        if (socket == null || socket.isClosed()) {
+            try {
+                conectar(); // Intentar reconectar si el socket está cerrado
+            } catch (IOException e) {
+                throw new IOException("No se pudo reconectar con " + IP + ":" + puerto, e);
+            }
+        }
+
+        if (out == null) {
+            throw new IOException("No hay conexión establecida con " + IP + ":" + puerto);
+        }
+
+        String mensajeStr = mensaje.getUsuario().getNombre() + "//" +
+                            mensaje.getContenido() + "//" +
+                            mensaje.getFechaYHora().toString();
+        out.println(mensajeStr);
+        System.out.println("Mensaje enviado a " + IP + ":" + puerto);
+    }
+
+    public void cerrarConexion() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+                System.out.println("Conexión cerrada con " + IP + ":" + puerto);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al cerrar la conexión con " + IP + ":" + puerto);
+        }
+    }
 }

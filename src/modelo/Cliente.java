@@ -39,10 +39,7 @@ public class Cliente {
             throw new IOException("No hay conexión establecida con " + IP + ":" + puerto);
         }
 
-        String mensajeStr = mensaje.getUsuario().getNombre() + "//" +
-                            mensaje.getContenido() + "//" +
-                            mensaje.getFechaYHora().toString();
-        out.println(mensajeStr);
+        out.println(mensaje.toString());
         System.out.println("Mensaje enviado a " + IP + ":" + puerto);
     }
 

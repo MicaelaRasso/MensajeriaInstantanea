@@ -175,7 +175,7 @@ public class Controlador implements ActionListener {
 		}
 	}
 
-	private void cargarContactos() {
+	public void cargarContactos() {
         DefaultListModel<String> modelo = new DefaultListModel<>();
        
         if (sistema!=null && !sistema.getAgenda().isEmpty()) {
@@ -193,7 +193,7 @@ public class Controlador implements ActionListener {
 	            if (!e.getValueIsAdjusting()) {
 	                String seleccionado = listaContactos.getSelectedValue();
 	                if(seleccionado.contains("*")) {
-	                	seleccionado.replace(" *","");
+	                    seleccionado = seleccionado.replace("*", "");
 	                }
 	                contactoActual = sistema.getContacto(seleccionado);
 	            }
@@ -205,19 +205,20 @@ public class Controlador implements ActionListener {
 	}
 	
 	public void notificarMensaje(Contacto cont) {
-		cargarContactos();
-		if(!cont.equals(contactoActual)) {
-			JList<String> listaContactos = (JList<String>) vPrincipal.getSpContactos().getViewport().getView();
-			DefaultListModel<String> modelo = (DefaultListModel<String>) listaContactos.getModel();
+		cargarConversaciones();  // Recargamos la lista de conversaciones con el asterisco
+
+		if (!cont.equals(contactoActual)) {
+			JList<String> listaConversaciones = (JList<String>) vPrincipal.getSpConversaciones().getViewport().getView();
+			DefaultListModel<String> modelo = (DefaultListModel<String>) listaConversaciones.getModel();
 
 			for (int i = 0; i < modelo.size(); i++) {
-				String contactoStr = modelo.getElementAt(i);
-				if (contactoStr.contains(cont.getNombre())) {
-					if (!contactoStr.contains("*")) {
-						modelo.set(i, contactoStr + " *");
-			        }
-			        break;
-			    }
+				String nombre = modelo.getElementAt(i);
+				if (nombre.equals(cont.getNombre()) || nombre.equals(cont.getNombre() + " *")) {
+					if (!nombre.endsWith("*")) {
+						modelo.set(i, cont.getNombre() + " *");  // Agrega notificación
+					}
+					break;
+				}
 			}
 		}
 	}
@@ -286,40 +287,60 @@ public class Controlador implements ActionListener {
 	    }
 	}
 
-	private void cargarConversaciones() {
+	public void cargarConversaciones() {
         DefaultListModel<String> modelo = new DefaultListModel<>();
        
         if (sistema!=null && !sistema.getConversaciones().isEmpty()) {
 	        Iterator<Conversacion> it = sistema.getConversaciones().iterator();
 	        
-	        while(it.hasNext()) {
-	        	Conversacion c = (Conversacion) it.next();
-				modelo.addElement(c.getContacto().toString());
-			}
+	        while (it.hasNext()) {
+	        	Conversacion c = it.next();
+	        	modelo.addElement(c.getContacto().getNombre()); // No le pongas * acá
+	        }
 	        
 	        JList<String> listaConversaciones = new JList<>(modelo);
 	        listaConversaciones.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	
 	        listaConversaciones.addListSelectionListener(e -> {
-	            if (!e.getValueIsAdjusting()) {
-	                String seleccionado = listaConversaciones.getSelectedValue();
-	                if(sistema.getAgenda().containsKey(seleccionado)) {
-	                	this.contactoActual = sistema.getContacto(seleccionado);
-		                this.cargarMensajes();
-	                }
-	                else {
-	                	JOptionPane.showMessageDialog(null,  "Error al seleccionar la conversacion");
-	                }
-	            }
+	        	if (!e.getValueIsAdjusting()) {
+	        		String seleccionado = listaConversaciones.getSelectedValue();
+
+	        		if (seleccionado.contains(" *")) {
+	        			seleccionado = seleccionado.replace(" *", "");  // Quitamos asterisco
+	        		}
+
+	        		if (sistema.getAgenda().containsKey(seleccionado)) {
+	        			this.contactoActual = sistema.getContacto(seleccionado);
+	        			this.cargarMensajes();
+
+	        			// Limpia el asterisco en la lista de conversaciones
+	        			DefaultListModel<String> modeloLista = (DefaultListModel<String>) listaConversaciones.getModel();
+	        			for (int i = 0; i < modeloLista.size(); i++) {
+	        				String nombre = modeloLista.get(i);
+	        				if (nombre.equals(contactoActual.getNombre() + " *")) {
+	        					modeloLista.set(i, contactoActual.getNombre());
+	        					break;
+	        				}
+	        			}
+	        		} else {
+	        			JOptionPane.showMessageDialog(null, "Error al seleccionar la conversación");
+	        		}
+	        	}
 	        });
 	
 	        vPrincipal.getSpConversaciones().setViewportView(listaConversaciones);
         }	
 	
 	}
+	
+	public void contactoAgregado(Contacto c) {
+	    SwingUtilities.invokeLater(() -> {
+	        cargarContactos();
+	        cargarConversaciones();  // también para que aparezca la nueva conversación
+	        JOptionPane.showMessageDialog(null, "Se ha agregado automáticamente el contacto " + c.getNombre());
+	    });
+	}
 
-	
-	
 	public Sistema getSistema() {
 		return sistema;
 	}

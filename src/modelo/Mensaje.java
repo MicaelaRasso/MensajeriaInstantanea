@@ -27,9 +27,12 @@ public class Mensaje {
 
 	@Override
 	public String toString() {
+		return usuario.getNombre() + ": // " + contenido + " // " + fechaYHora + " // " + usuario.getPuerto();
+	}
+	
+	public String paraMostrar() {
 		String salto = System.lineSeparator();
-		String s = usuario.toString() + ": " + salto + contenido + salto + fechaYHora;
-		return s;
+		return usuario.toString() + ": " + salto + contenido + salto + fechaYHora;
 	}
 
 }

@@ -77,7 +77,7 @@ public class Servidor {
                         break; // Salir del bucle si el cliente envía "exit"
                     }
                     try {
-						sistema.recibirMensaje(message, socket.getInetAddress().getHostAddress(), socket.getPort());
+						sistema.recibirMensaje(message, socket.getInetAddress().getHostAddress());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}                    

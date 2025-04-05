@@ -43,40 +43,52 @@ public class Sistema {
 	
 
 	public void enviarMensaje(String m, Contacto contacto) throws IOException {
-		Mensaje mensaje = new Mensaje(usuario, m, LocalDateTime.now());
-		contacto.enviarMensaje(mensaje);
-		contacto.getCliente().enviarMensaje(mensaje);
-	}	
+	    Mensaje mensaje = new Mensaje(usuario, m, LocalDateTime.now());
 
-	public void recibirMensaje(String s, String ip, int puerto) {
+	    if (contacto.getCliente() == null) {
+	        try {
+	            Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
+	            contacto.setCliente(cliente);
+	        } catch (IOException e) {
+	            System.err.println("No se pudo conectar con el contacto: " + contacto.getNombre());
+	            return;
+	        }
+	    }
+
+	    contacto.enviarMensaje(mensaje);
+	    contacto.getCliente().enviarMensaje(mensaje);
+	}
+
+	public void recibirMensaje(String s, String ip) {
 	    try {
 	        String[] partes = s.split("//");
 
-	        if (partes.length == 3) {
+	        if (partes.length == 4) {
 	            String nombre = partes[0].replace(":", "").trim();
 	            String contenido = partes[1].trim();
 	            String fechaYHoraStr = partes[2].trim();
+	            int puerto = Integer.parseInt(partes[3].trim());
+
 	            Contacto cont;
-	            if(agenda.containsKey(nombre)) {
-	            	cont = agenda.get(nombre);
+	            if (agenda.containsKey(nombre)) {
+	                cont = agenda.get(nombre);
 	            } else {
-	            	// Si el contacto no existe, lo agregamos a la agenda
-	            	cont = new Contacto(nombre, ip, puerto);
-	            	agenda.put(nombre, cont);
-	            	Conversacion conv = new Conversacion(cont);
-	            	cont.setConversacion(conv);
-	            	conversaciones.add(conv);
+	                cont = new Contacto(nombre, ip, puerto);
+	                agenda.put(nombre, cont);
+	                Conversacion conv = new Conversacion(cont);
+	                cont.setConversacion(conv);
+	                conversaciones.add(conv);
+	                SwingUtilities.invokeLater(() -> controlador.contactoAgregado(cont));
 	            }
-	            
 
 	            cont.recibirMensaje(contenido, fechaYHoraStr);
-	            SwingUtilities.invokeLater(() -> 
-	            		{
-	            			controlador.nuevoMensaje();
-	        	            controlador.notificarMensaje(cont);
-	            		});
+	            SwingUtilities.invokeLater(() -> {
+	                controlador.nuevoMensaje();
+	                controlador.notificarMensaje(cont);
+	            });
 
-
+	        } else {
+	            System.out.println("Mensaje mal formado: " + s);
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();

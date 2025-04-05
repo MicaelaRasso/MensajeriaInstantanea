@@ -8,12 +8,11 @@ public class Contacto extends Usuario {
     public Contacto(String nombre, String IP, int puerto) {
         super(nombre, puerto);
         this.ip = IP;
-        try {
-            this.cliente = new Cliente(IP, puerto);
-        } catch (IOException e) {
-            System.err.println("No se pudo conectar con el contacto: " + nombre);
-            this.cliente = null;  // Se deja null para manejar la reconexión si es necesario
-        }
+        this.cliente = null; // Se inicializa en null, se conecta solo al enviar
+    }
+    
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public void recibirMensaje(String c, String fyh) {

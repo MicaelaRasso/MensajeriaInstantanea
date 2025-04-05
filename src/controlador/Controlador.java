@@ -63,6 +63,8 @@ public class Controlador implements ActionListener {
 		Controlador contr = new Controlador(inicio, principal, contacto);
 
 		inicio.setVisible(true);
+
+		//inicio.getContentPane().setVisible(true);
 	}
 
 	@Override
@@ -134,21 +136,27 @@ public class Controlador implements ActionListener {
 		String puerto = vInicio.getTfPuerto().getText();
 		if (!(nombre.equals("") || puerto.equals(""))) {
 
-			int p = Integer.valueOf(puerto);
-			if (!Sistema.isPortAvailable(p)) {
-				JOptionPane.showMessageDialog(null, "El puerto no es valido");
-			} else {
-				Usuario usuario = new Usuario(nombre, p); 
-				this.sistema = new Sistema(usuario, this);
-				
-				try {
-					sistema.iniciarServidor(nombre, p);
-					vInicio.setVisible(false);
-					vPrincipal.setVisible(true);
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, "El puerto esta siendo utilizado");
-				}
+			try {
+				int p = Integer.valueOf(puerto);
+				if (!Sistema.isPortAvailable(p)) {
+					JOptionPane.showMessageDialog(null, "El puerto no es valido");
+				} else {
+					Usuario usuario = new Usuario(nombre, p); 
+					this.sistema = new Sistema(usuario, this);
+					
+					try {
+						sistema.iniciarServidor(nombre, p);
+						vInicio.setVisible(false);
+						vPrincipal.setVisible(true);
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(null, "El puerto está siendo utilizado");
+					}
+				}	
+			}catch(NumberFormatException e){
+				JOptionPane.showMessageDialog(null, "El puerto solo puede contener números");
 			}
+		}else {
+			JOptionPane.showMessageDialog(null, "Debe completar todos los campos");
 		}
 	}
 	
@@ -217,7 +225,7 @@ public class Controlador implements ActionListener {
 		cargarConversaciones();  // Recargamos la lista de conversaciones con el asterisco
 
 		if (!cont.equals(contactoActual)) {
-			JList<String> listaConversaciones = (JList<String>) vPrincipal.getSpConversaciones().getViewport().getView();
+			JList<String> listaConversaciones = (JList<String>) vPrincipal.getSpMensajes().getViewport().getView();
 			DefaultListModel<String> modelo = (DefaultListModel<String>) listaConversaciones.getModel();
 
 			for (int i = 0; i < modelo.size(); i++) {
@@ -337,7 +345,7 @@ public class Controlador implements ActionListener {
 	        	}
 	        });
 	
-	        vPrincipal.getSpConversaciones().setViewportView(listaConversaciones);
+	        vPrincipal.getSpMensajes().setViewportView(listaConversaciones);
         }	
 	
 	}

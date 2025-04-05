@@ -93,6 +93,7 @@ public class Controlador implements ActionListener {
 					if (vPrincipal.getBtnEnviar().equals(e.getSource())) {
 						String m;
 						m = vPrincipal.getTxtrEscribirMensaje().getText();
+						vPrincipal.getTxtrEscribirMensaje().setText("");
 						try {
 							sistema.enviarMensaje(m, contactoActual);
 						} catch (IOException e1) {
@@ -110,6 +111,9 @@ public class Controlador implements ActionListener {
 						}else {
 							//VENTANA AGREGAR CONTACTO - Volver a la ventana principal
 							if(vContacto.getBtnVolver().equals(e.getSource())) {
+								vContacto.getTfNombre().setText("");
+								vContacto.getTfIP().setText("");
+								vContacto.getTfPuerto().setText("");
 								vPrincipal.setVisible(true);
 								vContacto.setVisible(false);	
 							}
@@ -283,7 +287,7 @@ public class Controlador implements ActionListener {
 	            vPrincipal.getSpConversacion().setViewportView(messagePanel);
 	        });
 	    } else {
-	    	JOptionPane.showMessageDialog(null, "Debe seleccionar un contacto antes de iniciar la conversación");
+//	    	JOptionPane.showMessageDialog(null, "Debe seleccionar un contacto antes de iniciar la conversación");
 	    }
 	}
 
@@ -341,6 +345,10 @@ public class Controlador implements ActionListener {
 	    });
 	}
 
+	public void contactoSinConexion(String s) {
+	    JOptionPane.showMessageDialog(null, s);
+	}
+
 	public Sistema getSistema() {
 		return sistema;
 	}
@@ -348,4 +356,5 @@ public class Controlador implements ActionListener {
 	public Contacto getContactoActual() {
 		return contactoActual;
 	}
+
 }

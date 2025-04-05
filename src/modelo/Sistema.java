@@ -50,6 +50,7 @@ public class Sistema {
 	            Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
 	            contacto.setCliente(cliente);
 	        } catch (IOException e) {
+	        	controlador.contactoSinConexion("No se pudo conectar con el contacto: " + contacto.getNombre());
 	            System.err.println("No se pudo conectar con el contacto: " + contacto.getNombre());
 	            return;
 	        }
@@ -122,8 +123,5 @@ public class Sistema {
 		
 		return Servidor.isPortAvailable(p);
 	}
-
-	
-
 
 }

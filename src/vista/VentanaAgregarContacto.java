@@ -25,6 +25,9 @@ public class VentanaAgregarContacto extends JFrame {
 	public VentanaAgregarContacto() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 300, 360);
+		setLocationRelativeTo(null);
+		setResizable(false);
+
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 

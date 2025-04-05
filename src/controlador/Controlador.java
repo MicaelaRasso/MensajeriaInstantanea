@@ -75,7 +75,10 @@ public class Controlador implements ActionListener {
 
 			//VENTANA AGREGAR CONTACTO - Crea contacto e inicia la conversación (en sistema)
 			if(vContacto.getBtnAgregar().equals(e.getSource())) {
-				agregarContacto();					
+				agregarContacto();
+				vContacto.getTfNombre().setText("");
+				vContacto.getTfIP().setText("");
+				vContacto.getTfPuerto().setText("");
 			}else {
 				
 				//VENTANA PRINCIPAL
@@ -92,17 +95,22 @@ public class Controlador implements ActionListener {
 					//VENTANA PRINCIPAL - Presiona para enviar un mensaje
 					if (vPrincipal.getBtnEnviar().equals(e.getSource())) {
 						String m;
-						m = vPrincipal.getTxtrEscribirMensaje().getText();
+						m = vPrincipal.getTxtrEscribirMensaje().getText().trim();
 						vPrincipal.getTxtrEscribirMensaje().setText("");
-						try {
-							sistema.enviarMensaje(m, contactoActual);
-						} catch (IOException e1) {
-							JOptionPane.showMessageDialog(null, "No se pudo establecer la conexión con el socket");
+						if (!m.equalsIgnoreCase("")) {
+							try {
+								sistema.enviarMensaje(m, contactoActual);
+							} catch (IOException e1) {
+								JOptionPane.showMessageDialog(null, "No se pudo establecer la conexión con el socket");
+							}
+							
+						    SwingUtilities.invokeLater(() -> {
+						        cargarMensajes();
+						    });	
+						}else {
+							JOptionPane.showMessageDialog(null, "No se pueden enviar mensajes vacios");
 						}
 						
-					    SwingUtilities.invokeLater(() -> {
-					        cargarMensajes();
-					    });
 					}else {
 						//VENTANA PRINCIPAL - Abre la ventana de agregar contacto
 						if (vPrincipal.getBtnContacto().equals(e.getSource())) {
@@ -111,9 +119,6 @@ public class Controlador implements ActionListener {
 						}else {
 							//VENTANA AGREGAR CONTACTO - Volver a la ventana principal
 							if(vContacto.getBtnVolver().equals(e.getSource())) {
-								vContacto.getTfNombre().setText("");
-								vContacto.getTfIP().setText("");
-								vContacto.getTfPuerto().setText("");
 								vPrincipal.setVisible(true);
 								vContacto.setVisible(false);	
 							}

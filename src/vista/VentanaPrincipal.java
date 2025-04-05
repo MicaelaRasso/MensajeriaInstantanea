@@ -36,8 +36,8 @@ public class VentanaPrincipal extends JFrame {
 
 	public VentanaPrincipal() {
 		
-		Color cTexto = new Color(91, 44, 111); //violeta
-		Color cFondo = new Color(235, 222, 240); // lila
+		Color cTexto = new Color(18, 1, 25); //violeta
+		Color cFondo = new Color(232, 218, 239); // lila
 	    Color cBorde = new Color(74, 35, 90);  // violeta oscuro
 	    Color cBoton = new Color(210, 180, 222); // lila oscuro
 

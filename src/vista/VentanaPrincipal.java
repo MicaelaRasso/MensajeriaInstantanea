@@ -136,6 +136,7 @@ public class VentanaPrincipal extends JFrame {
 		spConversacion.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		contentPane.add(spConversacion);
 
+		
 		//SECTOR BARRA 
 		
         JPanel barraMovible = new JPanel();

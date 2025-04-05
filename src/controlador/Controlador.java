@@ -1,7 +1,9 @@
 package controlador;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -225,7 +227,7 @@ public class Controlador implements ActionListener {
 		cargarConversaciones();  // Recargamos la lista de conversaciones con el asterisco
 
 		if (!cont.equals(contactoActual)) {
-			JList<String> listaConversaciones = (JList<String>) vPrincipal.getSpMensajes().getViewport().getView();
+			JList<String> listaConversaciones = (JList<String>) vPrincipal.getSpConversacion().getViewport().getView();
 			DefaultListModel<String> modelo = (DefaultListModel<String>) listaConversaciones.getModel();
 
 			for (int i = 0; i < modelo.size(); i++) {
@@ -246,6 +248,55 @@ public class Controlador implements ActionListener {
 	    });
 	}
 	
+	private JPanel crearPanelMensaje(Mensaje m) {
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	    String fechaFormateada = m.getFechaYHora().format(formatter);
+
+	    boolean esMio = m.getUsuario().equals(sistema.getUsuario());
+
+	    // Colores personalizados
+	    Color cFondo = new Color(232, 218, 239); // lila claro
+	    Color cBoton = new Color(210, 180, 222); // lila oscuro
+	    Color colorFondoMensaje = esMio ? cFondo : cBoton;
+
+	    JPanel panelMensaje = new JPanel();
+	    panelMensaje.setLayout(new BoxLayout(panelMensaje, BoxLayout.Y_AXIS));
+	    panelMensaje.setBorder(BorderFactory.createCompoundBorder(
+	        BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
+	        BorderFactory.createEmptyBorder(5, 10, 5, 10)
+	    ));
+	    panelMensaje.setBackground(colorFondoMensaje);
+	    panelMensaje.setAlignmentX(esMio ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
+
+	    JLabel lblUsuario = new JLabel(m.getUsuario().getNombre() + ":");
+	    lblUsuario.setFont(new Font("Segoe UI Semibold", Font.ITALIC, 12));
+	    lblUsuario.setForeground(new Color(50, 50, 50));
+
+	    JTextArea txtrContenido = new JTextArea(m.getContenido());
+	    txtrContenido.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 12));
+	    txtrContenido.setLineWrap(true);
+	    txtrContenido.setWrapStyleWord(true);
+	    txtrContenido.setEditable(false);
+	    txtrContenido.setBackground(colorFondoMensaje);
+	    txtrContenido.setBorder(null);
+	    txtrContenido.setMaximumSize(new Dimension(300, Integer.MAX_VALUE));
+
+	    JLabel lblFecha = new JLabel(fechaFormateada);
+	    lblFecha.setFont(new Font("Segoe UI", Font.ITALIC, 10));
+	    lblFecha.setForeground(new Color(100, 100, 100));
+
+	    panelMensaje.add(lblUsuario);
+	    panelMensaje.add(txtrContenido);
+	    panelMensaje.add(lblFecha);
+
+	    JPanel wrapper = new JPanel(new FlowLayout(esMio ? FlowLayout.RIGHT : FlowLayout.LEFT));
+	    wrapper.setOpaque(false);
+	    wrapper.add(panelMensaje);
+
+	    return wrapper;
+	}
+
+	
 	private void cargarMensajes() {
 	    if (contactoActual != null) {
 	        vPrincipal.getLblNombre().setText(contactoActual.getNombre());
@@ -255,40 +306,13 @@ public class Controlador implements ActionListener {
 
 	        // Iterar sobre los mensajes del contacto actual de forma invertida, para que el ultimo aparezca arriba
 
-	        ArrayList<Mensaje> invertida = new ArrayList<Mensaje>();
-	        invertida = sistema.getConversacion(contactoActual).getMensajes();
+	        ArrayList<Mensaje> invertida = new ArrayList<>(sistema.getConversacion(contactoActual).getMensajes());
+
 	        Collections.reverse(invertida);
 	        Iterator<Mensaje> it = invertida.iterator();
 	        while (it.hasNext()) {
-	            Mensaje m = it.next();
-
-	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-	            String fechaFormateada = m.getFechaYHora().format(formatter);
-
-	            JPanel panelMensaje = new JPanel();
-	            panelMensaje.setLayout(new BoxLayout(panelMensaje, BoxLayout.Y_AXIS));
-	            panelMensaje.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
-
-	            JLabel lblUsuario = new JLabel(m.getUsuario().getNombre() + ":");
-	            lblUsuario.setFont(new Font("Segoe UI Semibold", Font.ITALIC, 12));
-
-	            JTextArea txtrContenido = new JTextArea(m.getContenido());
-	            txtrContenido.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 12));
-	            txtrContenido.setLineWrap(true);  // Permite el salto de línea automático
-	            txtrContenido.setWrapStyleWord(true); // Hace que el salto de línea sea más limpio
-	            txtrContenido.setEditable(false);  // No editable
-	            txtrContenido.setBackground(new Color(240, 240, 240));  // Fondo gris claro
-	            txtrContenido.setPreferredSize(new Dimension(300, 30)); // Ajusta el tamaño según necesidad
-
-	            JLabel lblFecha = new JLabel(fechaFormateada);
-	            lblFecha.setFont(new Font("Segoe UI", Font.ITALIC, 10));
-
-	            panelMensaje.add(lblUsuario);
-	            panelMensaje.add(txtrContenido);  // Usamos el JTextArea aquí
-	            panelMensaje.add(lblFecha);
-
-	            panelMensaje.setMaximumSize(new Dimension(Integer.MAX_VALUE, panelMensaje.getPreferredSize().height));
-
+	            Mensaje m = it.next();  
+	            JPanel panelMensaje = crearPanelMensaje(m);
 	            messagePanel.add(panelMensaje);
 	        }
 
@@ -297,7 +321,7 @@ public class Controlador implements ActionListener {
 	        
 	        // Actualizar la vista
 	        SwingUtilities.invokeLater(() -> {
-	            vPrincipal.getSpConversacion().setViewportView(messagePanel);
+	            vPrincipal.getSpMensajes().setViewportView(messagePanel);
 	        });
 	    } else {
 //	    	JOptionPane.showMessageDialog(null, "Debe seleccionar un contacto antes de iniciar la conversación");
@@ -345,7 +369,7 @@ public class Controlador implements ActionListener {
 	        	}
 	        });
 	
-	        vPrincipal.getSpMensajes().setViewportView(listaConversaciones);
+	        vPrincipal.getSpConversacion().setViewportView(listaConversaciones);
         }	
 	
 	}

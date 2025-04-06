@@ -47,6 +47,32 @@ public class Controlador implements ActionListener {
 		super();
 		this.vInicio = vInicio;
 		this.vPrincipal = vPrincipal;
+		
+		// Deshabilita el botón de enviar si el área de texto está vacía
+		this.vPrincipal.getBtnEnviar().setEnabled(false);  // estado inicial
+
+		this.vPrincipal.getTxtrEscribirMensaje().getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+		    private void actualizarEstadoBoton() {
+		        String texto = vPrincipal.getTxtrEscribirMensaje().getText().trim();
+		        vPrincipal.getBtnEnviar().setEnabled(!texto.isEmpty());
+		    }
+
+		    @Override
+		    public void insertUpdate(javax.swing.event.DocumentEvent e) {
+		        actualizarEstadoBoton();
+		    }
+
+		    @Override
+		    public void removeUpdate(javax.swing.event.DocumentEvent e) {
+		        actualizarEstadoBoton();
+		    }
+
+		    @Override
+		    public void changedUpdate(javax.swing.event.DocumentEvent e) {
+		        actualizarEstadoBoton();
+		    }
+		});
+
 		this.vContacto = vContacto;
 		this.vInicio.getBtnIngresar().addActionListener(this);
 		this.vPrincipal.getBtnConversacion().addActionListener(this);
@@ -54,6 +80,8 @@ public class Controlador implements ActionListener {
 		this.vPrincipal.getBtnContacto().addActionListener(this);
 		this.vContacto.getBtnAgregar().addActionListener(this);
 		this.vContacto.getBtnVolver().addActionListener(this);
+		
+		
 	}
 
 	public static void main(String[] args) {

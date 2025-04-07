@@ -40,8 +40,14 @@ public class Cliente {
         }
 
         out.println(mensaje.toString());
+        out.flush();
         System.out.println("Mensaje enviado a " + IP + ":" + puerto);
+        System.out.println("[DEBUG] Enviando mensaje: " + mensaje);
+
+        // 🔥 Cerrar conexión inmediatamente después de enviar
+        cerrarConexion();
     }
+
 
     public void cerrarConexion() {
         try {

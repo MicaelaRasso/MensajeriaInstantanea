@@ -80,14 +80,12 @@ public class Controlador implements ActionListener {
 		this.vPrincipal.getBtnContacto().addActionListener(this);
 		this.vContacto.getBtnAgregar().addActionListener(this);
 		this.vContacto.getBtnVolver().addActionListener(this);
-		
-		
 	}
 
 	public static void main(String[] args) {
 		
 		VentanaInicio inicio = new VentanaInicio();
-		VentanaPrincipal principal = new VentanaPrincipal();
+		VentanaPrincipal principal = new VentanaPrincipal(null);
 		VentanaAgregarContacto contacto = new VentanaAgregarContacto();
 
 		Controlador contr = new Controlador(inicio, principal, contacto);
@@ -420,6 +418,10 @@ public class Controlador implements ActionListener {
 
 	public Contacto getContactoActual() {
 		return contactoActual;
+	}
+	
+	public void notificarDesconexion() {
+	    sistema.notificarDesconexion();
 	}
 
 }

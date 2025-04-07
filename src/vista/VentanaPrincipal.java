@@ -8,6 +8,8 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +21,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+
+import controlador.Controlador;
 
 public class VentanaPrincipal extends JFrame {
 
@@ -32,10 +36,12 @@ public class VentanaPrincipal extends JFrame {
 	private JButton btnContacto;
 	private JScrollPane spMensajes;
 	protected Point mouseClickPoint;
+	private Controlador controlador;
+
 	
 
-	public VentanaPrincipal() {
-		
+	public VentanaPrincipal(Controlador controlador) {
+		this.controlador = controlador;
 		Color cTexto = new Color(18, 1, 25); //violeta
 		Color cFondo = new Color(232, 218, 239); // lila
 	    Color cBorde = new Color(74, 35, 90);  // violeta oscuro
@@ -163,13 +169,27 @@ public class VentanaPrincipal extends JFrame {
         btnCerrar.setBorder(BorderFactory.createLineBorder(cBorde, 2));
         btnCerrar.setForeground(cTexto);
         btnCerrar.setBackground(cBoton);
-        btnCerrar.addActionListener(e -> System.exit(0));
+        btnCerrar.addActionListener(e -> {
+            int opcion = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "¿Seguro que querés cerrar la aplicación?",
+                "Confirmar salida",
+                javax.swing.JOptionPane.YES_NO_OPTION
+            );
+
+            if (opcion == javax.swing.JOptionPane.YES_OPTION) {
+                // Llamamos a la desconexión antes de salir
+                if (controlador != null) {
+                    controlador.notificarDesconexion();
+                }
+                System.exit(0);
+            }
+        });
+
         barraMovible.add(btnCerrar, BorderLayout.EAST);
         
-
 	}
 
-	
 	private void agregarMovimientoVentana(JComponent componente) {
         componente.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {

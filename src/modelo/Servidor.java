@@ -12,7 +12,7 @@ public class Servidor {
     
     public Servidor(int puerto, Sistema sistema) {
         this.puerto = puerto;
-        this.sistema = sistema;
+        Servidor.sistema = sistema;
     }
 
     public static boolean isPortAvailable(int port) {
@@ -70,18 +70,16 @@ public class Servidor {
 
         public void run() {
             try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-                String message;
-                while ((message = in.readLine()) != null) {
-                    if ("exit".equalsIgnoreCase(message)) {
-                        System.out.println("Cliente desconectado.");
-                        break; // Salir del bucle si el cliente envía "exit"
-                    }
-                    try {
-						sistema.recibirMensaje(message, socket.getInetAddress().getHostAddress());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}                    
-                }
+            	try {
+            	    String message = in.readLine(); // Lee solo un mensaje
+            	    if (message != null && !"exit".equalsIgnoreCase(message)) {
+            	        System.out.println("[DEBUG] Recibiendo mensaje: " + message);
+            	        sistema.recibirMensaje(message, socket.getInetAddress().getHostAddress());
+            	    }
+            	} catch (Exception e) {
+            	    e.printStackTrace();
+            	}
+
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

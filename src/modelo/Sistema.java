@@ -50,15 +50,15 @@ public class Sistema {
 	            Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
 	            contacto.setCliente(cliente);
 	        } catch (IOException e) {
-	        	contactoSinConexion("No se pudo conectar con el contacto: " + contacto.getNombre());
-	            System.err.println("No se pudo conectar con el contacto: " + contacto.getNombre());
+	            contactoSinConexion("No se pudo conectar con el contacto: " + contacto.getNombre());
 	            return;
 	        }
 	    }
 
-	    contacto.enviarMensaje(mensaje);
-	    contacto.getCliente().enviarMensaje(mensaje);
+	    contacto.enviarMensaje(mensaje); // suficiente
+	    // contacto.getCliente().enviarMensaje(mensaje); ⛔ eliminar esta línea
 	}
+
 
 	public void recibirMensaje(String s, String ip) {
 	    try {
@@ -69,6 +69,14 @@ public class Sistema {
 	            String contenido = partes[1].trim();
 	            String fechaYHoraStr = partes[2].trim();
 	            int puerto = Integer.parseInt(partes[3].trim());
+	            System.out.println("Yo soy: " + usuario.getNombre() + ":" + usuario.getPuerto());
+	            System.out.println("[DEBUG] Mensaje recibido: " + s + " desde " + ip);  // <- AGREGÁ ESTO
+
+	            // 🛑 Evitar procesar mensajes que vienen de uno mismo
+	            if (nombre.equals(usuario.getNombre()) && puerto == usuario.getPuerto()) {
+	                System.out.println("Mensaje de uno mismo ignorado.");
+	                return;
+	            }
 
 	            Contacto cont;
 	            if (agenda.containsKey(nombre)) {
@@ -80,6 +88,13 @@ public class Sistema {
 	                cont.setConversacion(conv);
 	                conversaciones.add(conv);
 	                SwingUtilities.invokeLater(() -> controlador.contactoAgregado(cont));
+	                try {
+	                    Cliente cliente = new Cliente(ip, puerto);
+	                    cont.setCliente(cliente);
+	                } catch (IOException e) {
+	                    System.err.println("No se pudo establecer conexión saliente con " + nombre);
+	                }
+
 	            }
 
 	            cont.recibirMensaje(contenido, fechaYHoraStr);
@@ -91,7 +106,10 @@ public class Sistema {
 	        } else {
 	            System.out.println("Mensaje mal formado: " + s);
 	        }
+	    } catch (NumberFormatException e) {
+	        System.err.println("Error al parsear el puerto: " + e.getMessage());
 	    } catch (Exception e) {
+	        System.err.println("Error al recibir mensaje: " + e.getMessage());
 	        e.printStackTrace();
 	    }
 	}
@@ -100,7 +118,33 @@ public class Sistema {
 		controlador.contactoSinConexion(s);		
 	}
 
-	
+	public void notificarDesconexion() {
+	    for (Contacto contacto : agenda.values()) {
+	        try {
+	            // Si ya hay cliente, usarlo, si no, crearlo
+	            if (contacto.getCliente() == null) {
+	                Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
+	                contacto.setCliente(cliente);
+	            }
+
+	            Mensaje msg = new Mensaje(usuario, "[DESCONECTADO]", LocalDateTime.now());
+	            contacto.getCliente().enviarMensaje(msg);
+	        } catch (IOException e) {
+	            System.out.println("No se pudo notificar a " + contacto.getNombre());
+	        }
+	    }
+
+	    // Detener servidor (si querés)
+	    if (servidor != null) {
+	        try {
+				servidor.terminar();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  // suponiendo que tenés un método así
+	    }
+	}
+
 	
 	public Contacto getContacto(String seleccionado) {
 		return agenda.get(seleccionado);

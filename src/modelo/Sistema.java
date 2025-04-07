@@ -50,7 +50,7 @@ public class Sistema {
 	            Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
 	            contacto.setCliente(cliente);
 	        } catch (IOException e) {
-	            contactoSinConexion("No se pudo conectar con el contacto: " + contacto.getNombre());
+	            contactoSinConexion("No se pudo conectar con: " + contacto.getNombre());
 	            return;
 	        }
 	    }
@@ -69,10 +69,8 @@ public class Sistema {
 	            String contenido = partes[1].trim();
 	            String fechaYHoraStr = partes[2].trim();
 	            int puerto = Integer.parseInt(partes[3].trim());
-	            System.out.println("Yo soy: " + usuario.getNombre() + ":" + usuario.getPuerto());
-	            System.out.println("[DEBUG] Mensaje recibido: " + s + " desde " + ip);  // <- AGREGÁ ESTO
+	            System.out.println("Mensaje recibido: " + s + " desde " + ip);
 
-	            // 🛑 Evitar procesar mensajes que vienen de uno mismo
 	            if (nombre.equals(usuario.getNombre()) && puerto == usuario.getPuerto()) {
 	                System.out.println("Mensaje de uno mismo ignorado.");
 	                return;
@@ -144,7 +142,6 @@ public class Sistema {
 			}  // suponiendo que tenés un método así
 	    }
 	}
-
 	
 	public Contacto getContacto(String seleccionado) {
 		return agenda.get(seleccionado);

@@ -8,8 +8,6 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -36,12 +34,8 @@ public class VentanaPrincipal extends JFrame {
 	private JButton btnContacto;
 	private JScrollPane spMensajes;
 	protected Point mouseClickPoint;
-	private Controlador controlador;
-
 	
-
 	public VentanaPrincipal(Controlador controlador) {
-		this.controlador = controlador;
 		Color cTexto = new Color(18, 1, 25); //violeta
 		Color cFondo = new Color(232, 218, 239); // lila
 	    Color cBorde = new Color(74, 35, 90);  // violeta oscuro

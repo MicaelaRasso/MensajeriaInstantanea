@@ -35,13 +35,13 @@ public class Contacto extends Usuario {
             conversacion.enviarMensaje(mensaje, this);
 
         } catch (IOException e) {
-            System.err.println("No se pudo enviar mensaje a " + getNombre() + ": " + e.getMessage());
+            System.err.println("No se pudo enviar mensaje a " + getNombre());
 
             // Mostrar notificación en la GUI
             SwingUtilities.invokeLater(() -> {
                 JOptionPane.showMessageDialog(
                     null,
-                    "No se pudo enviar el mensaje porque el contacto '" + getNombre() + "' no está conectado.",
+                    "No se pudo enviar el mensaje porque '" + getNombre() + "' no está conectado.",
                     "Error de conexión",
                     JOptionPane.WARNING_MESSAGE
                 );

@@ -22,7 +22,7 @@ public class Cliente {
             System.out.println("Conectado con " + IP + ":" + puerto);
         } catch (IOException e) {
             System.err.println("Error al conectar con " + IP + ":" + puerto + " - " + e.getMessage());
-            throw e;  // Propagamos la excepción para que `Contacto` o `Sistema` la maneje
+            throw e;
         }
     }
 
@@ -41,10 +41,8 @@ public class Cliente {
 
         out.println(mensaje.toString());
         out.flush();
+        System.out.println("Enviando mensaje: " + mensaje);
         System.out.println("Mensaje enviado a " + IP + ":" + puerto);
-        System.out.println("[DEBUG] Enviando mensaje: " + mensaje);
-
-        // 🔥 Cerrar conexión inmediatamente después de enviar
         cerrarConexion();
     }
 

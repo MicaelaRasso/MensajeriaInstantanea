@@ -125,7 +125,13 @@ public class Controlador implements ActionListener {
 					//VENTANA PRINCIPAL - Presiona para enviar un mensaje
 					if (vPrincipal.getBtnEnviar().equals(e.getSource())) {
 						if (contactoActual == null) {
-							JOptionPane.showMessageDialog(null, "Primero debés seleccionar una conversación antes de enviar un mensaje.");
+							JOptionPane.showMessageDialog(
+								    null,
+								    "Primero debés seleccionar una conversación antes de enviar un mensaje.",
+								    "ERROR 003",
+								    JOptionPane.WARNING_MESSAGE
+								);
+
 							return;
 						}
 
@@ -169,6 +175,14 @@ public class Controlador implements ActionListener {
 
 			try {
 				int p = Integer.valueOf(puerto);
+				if (p < 0 || p > 65535) {
+					JOptionPane.showMessageDialog(
+						    null,
+						    "Puerto fuera de rango (0-65535)",
+						    "ERROR 002",
+						    JOptionPane.WARNING_MESSAGE
+						);
+				}
 				if (!Sistema.isPortAvailable(p)) {
 					JOptionPane.showMessageDialog(null, "El puerto no es valido");
 				} else {
@@ -180,14 +194,19 @@ public class Controlador implements ActionListener {
 						vInicio.setVisible(false);
 						vPrincipal.setVisible(true);
 					} catch (IOException e) {
-						JOptionPane.showMessageDialog(null, "El puerto está siendo utilizado");
+						JOptionPane.showMessageDialog(null, "El puerto ya está siendo utilizado");
 					}
 				}	
 			}catch(NumberFormatException e){
 				JOptionPane.showMessageDialog(null, "El puerto solo puede contener números");
 			}
 		}else {
-			JOptionPane.showMessageDialog(null, "Debe completar todos los campos");
+			JOptionPane.showMessageDialog(
+				    null,
+				    "Debe completar todos los campos",
+				    "ERROR 001",
+				    JOptionPane.WARNING_MESSAGE
+				);
 		}
 	}
 	
@@ -199,7 +218,7 @@ public class Controlador implements ActionListener {
 			int p = Integer.valueOf(puerto);
 			if(sistema.getAgenda().containsKey(nombre)){
 				//Los nicknames son unicos, no debería suceder
-				JOptionPane.showMessageDialog(null,"Se ha intentado cargar un usuario con un nombre repetido, volver a intentar");
+				JOptionPane.showMessageDialog(null,"Se ha intentado cargar un usuario con un nombre no disponible, intente nuevamente");
 			}else {
 				try {
 					InetAddress.getByName(ip);

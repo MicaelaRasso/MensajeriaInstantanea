@@ -55,8 +55,7 @@ public class Sistema {
 	        }
 	    }
 
-	    contacto.enviarMensaje(mensaje); // suficiente
-	    // contacto.getCliente().enviarMensaje(mensaje); ⛔ eliminar esta línea
+	    contacto.enviarMensaje(mensaje);
 	}
 
 
@@ -113,7 +112,7 @@ public class Sistema {
 	}
 
 	public void contactoSinConexion(String s) {
-		controlador.contactoSinConexion(s);		
+		controlador.contactoSinConexion(s, "ERROR 009");		
 	}
 
 	public void notificarDesconexion() {

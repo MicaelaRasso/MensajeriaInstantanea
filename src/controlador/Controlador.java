@@ -124,8 +124,12 @@ public class Controlador implements ActionListener {
 					
 					//VENTANA PRINCIPAL - Presiona para enviar un mensaje
 					if (vPrincipal.getBtnEnviar().equals(e.getSource())) {
-						String m;
-						m = vPrincipal.getTxtrEscribirMensaje().getText().trim();
+						if (contactoActual == null) {
+							JOptionPane.showMessageDialog(null, "Primero debés seleccionar una conversación antes de enviar un mensaje.");
+							return;
+						}
+
+						String m = vPrincipal.getTxtrEscribirMensaje().getText().trim();
 						vPrincipal.getTxtrEscribirMensaje().setText("");
 						if (!m.equalsIgnoreCase("")) {
 							try {
@@ -133,14 +137,13 @@ public class Controlador implements ActionListener {
 							} catch (IOException e1) {
 								JOptionPane.showMessageDialog(null, "No se pudo establecer la conexión con el socket");
 							}
-							
-						    SwingUtilities.invokeLater(() -> {
-						        cargarMensajes();
-						    });	
-						}else {
-							JOptionPane.showMessageDialog(null, "No se pueden enviar mensajes vacios");
+
+							SwingUtilities.invokeLater(() -> {
+								cargarMensajes();
+							});	
+						} else {
+							JOptionPane.showMessageDialog(null, "No se pueden enviar mensajes vacíos");
 						}
-						
 					}else {
 						//VENTANA PRINCIPAL - Abre la ventana de agregar contacto
 						if (vPrincipal.getBtnContacto().equals(e.getSource())) {
@@ -377,8 +380,12 @@ public class Controlador implements ActionListener {
 	        		}
 
 	        		if (sistema.getAgenda().containsKey(seleccionado)) {
-	        			this.contactoActual = sistema.getContacto(seleccionado);
-	        			this.cargarMensajes();
+	        			contactoActual = sistema.getContacto(seleccionado);
+	        			cargarMensajes();
+
+	        			// Habilita o deshabilita el botón enviar según el contenido del campo de texto
+	        			String texto = vPrincipal.getTxtrEscribirMensaje().getText().trim();
+	        			vPrincipal.getBtnEnviar().setEnabled(!texto.isEmpty());
 
 	        			// Limpia el asterisco en la lista de conversaciones
 	        			DefaultListModel<String> modeloLista = (DefaultListModel<String>) listaConversaciones.getModel();
@@ -389,7 +396,7 @@ public class Controlador implements ActionListener {
 	        					break;
 	        				}
 	        			}
-	        		} else {
+	        		}else {
 	        			JOptionPane.showMessageDialog(null, "Error al seleccionar la conversación");
 	        		}
 	        	}
@@ -404,7 +411,7 @@ public class Controlador implements ActionListener {
 	    SwingUtilities.invokeLater(() -> {
 	        cargarContactos();
 	        cargarConversaciones();  // también para que aparezca la nueva conversación
-	        JOptionPane.showMessageDialog(null, "Se ha agregado automáticamente el contacto " + c.getNombre());
+	        JOptionPane.showMessageDialog(null, "Se ha agregado el contacto " + c.getNombre() + c.getIP() + ":" + c.getPuerto());
 	    });
 	}
 

@@ -23,6 +23,7 @@ public class VentanaInicio extends JFrame{
 
 	private JPanel contentPane;
 	private JTextField tfNombre;
+	private JTextField tfIP;
 	private JTextField tfPuerto;
 	private JButton btnIngresar;
 	
@@ -135,6 +136,10 @@ public class VentanaInicio extends JFrame{
     
 	public JTextField getTfNombre() {
 		return tfNombre;
+	}
+	
+	public JTextField getTfIP() {
+		return tfIP;
 	}
 
 	public JTextField getTfPuerto() {

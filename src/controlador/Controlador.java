@@ -164,6 +164,8 @@ public class Controlador implements ActionListener {
 
 	private void registroInicial() {
 		String nombre = vInicio.getTfNombre().getText();
+		String IP = vInicio.getTfIP().getText(); //HAY QUE AGREGAR EL CONTENEDOR
+		IP = "127.0.0.1";
 		String puerto = vInicio.getTfPuerto().getText();
 		if (!(nombre.equals("") || puerto.equals(""))) {
 
@@ -177,7 +179,7 @@ public class Controlador implements ActionListener {
 						    JOptionPane.WARNING_MESSAGE
 						);
 				}else {
-					if (!Sistema.isPortAvailable(p)) {
+					if (!Sistema.isPortAvailable(p)) { //HAY QUE ARREGLAR ESTA FUNCION, POR AHORA, SIEMPRE DEVUELVE TRUE
 						JOptionPane.showMessageDialog(
 							    null,
 							    "El puerto no es valido",
@@ -185,10 +187,14 @@ public class Controlador implements ActionListener {
 							    JOptionPane.WARNING_MESSAGE
 							);
 					} else {
-						Usuario usuario = new Usuario(nombre, p); 
+						Usuario usuario = new Usuario(nombre, IP, p); 
 						this.sistema = new Sistema(usuario, this);
 						
-						try {
+
+						vInicio.setVisible(false);
+						vPrincipal.setVisible(true);
+						
+					/*	try {
 							sistema.iniciarServidor(nombre, p);
 							vInicio.setVisible(false);
 							vPrincipal.setVisible(true);
@@ -199,7 +205,7 @@ public class Controlador implements ActionListener {
 								    "ERROR 004",
 								    JOptionPane.WARNING_MESSAGE
 								);
-						}
+						}*/
 					}
 				}
 			}catch(NumberFormatException e){

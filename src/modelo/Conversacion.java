@@ -25,7 +25,7 @@ public class Conversacion {
 
 	
 	public void recibirMensaje(String contenido, String fechaYHoraStr, Contacto c) {
-	    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;  // El formato que tiene es ISO 8601
+	    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;  // El formato que tienes es ISO 8601
         LocalDateTime fechaYHora = LocalDateTime.parse(fechaYHoraStr, formatter);
         mensajes.add(new Mensaje(c, contenido, fechaYHora));
 	}

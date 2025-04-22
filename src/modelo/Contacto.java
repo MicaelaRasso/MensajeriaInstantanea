@@ -7,20 +7,31 @@ import javax.swing.SwingUtilities;
 public class Contacto extends Usuario {
     private String ip;
     private Conversacion conversacion;
+    private Cliente cliente;
 
     public Contacto(String nombre, String IP, int puerto) {
-        super(nombre, IP, puerto);
+        super(nombre, puerto);
+        this.ip = IP;
+        this.cliente = null; // Se inicializa en null, se conecta solo al enviar
     }
     
- /*   public void recibirMensaje(String c, String fyh) {
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public void recibirMensaje(String c, String fyh) {
         conversacion.recibirMensaje(c, fyh, this);
-    }*/
-/*
+    }
+
     public void enviarMensaje(Mensaje mensaje) {
         try {
-        	mensaje.getUsuario().getConexion().enviarMensaje(mensaje); //deberia hacerlo desde usuario? 
+            if (cliente == null) {
+                cliente = new Cliente(ip, getPuerto()); // Intentamos conectar si no existe
+            }
 
-            // Si llegamos hasta acá, se envió correctamente => lo agregamos a la conversación
+            cliente.enviarMensaje(mensaje); // Intentamos enviarlo por red primero
+
+            // 💬 Si llegamos hasta acá, se envió correctamente => lo agregamos a la conversación
             conversacion.enviarMensaje(mensaje, this);
 
         } catch (IOException e) {
@@ -36,7 +47,7 @@ public class Contacto extends Usuario {
                 );
             });
         }
-    }*/
+    }
 
     // Getters
     public String getIP() {
@@ -49,6 +60,10 @@ public class Contacto extends Usuario {
 
     public void setConversacion(Conversacion conversacion) {
         this.conversacion = conversacion;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
     }
 
     @Override

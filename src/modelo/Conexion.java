@@ -8,17 +8,19 @@ public class Conexion {
     private PrintWriter out;
     private String IP;
     private int puerto;
+	private Sistema sistema;
 
-    public Conexion(String IP, int puerto, String nombreUsuario) throws IOException {
+    public Conexion(String IP, int puerto, String nombreUsuario, Sistema sistema) throws IOException {
         this.IP = IP;
         this.puerto = puerto;
+        this.sistema = sistema;
         conectar(nombreUsuario);
+        cerrarConexion();
     }
 
-    
-    private void conectar(String nombreUsuario) throws IOException {
+	private void conectar(String nombreUsuario) throws IOException {
         try {
-            this.socket = new Socket(IP, puerto);
+            this.socket = new Socket("127.0.0.1", 5000);
             this.out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -37,7 +39,11 @@ public class Conexion {
             throw e;
         }
     }
-
+	
+	public boolean agregarContacto(String nombreContacto) throws IOException {
+		//pregunta a al servidor si existe este usuario
+		return true;
+	}
     
     public void enviarMensaje(Mensaje mensaje) throws IOException {
         conectar(mensaje.getUsuario().getNombre());
@@ -49,7 +55,6 @@ public class Conexion {
             throw new IOException("OutputStream no disponible para enviar mensaje.");
         }
         
-
         out.println(mensaje.toString());  // Envía el mensaje como string formateado
         out.flush();
 
@@ -57,6 +62,19 @@ public class Conexion {
 
         cerrarConexion(); // Si querés cerrar luego de enviar. Opcional.
     }
+    
+    public void recibirMensaje() {
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			String mensajeRecibido = in.readLine();
+			if (mensajeRecibido != null) {
+				System.out.println("Mensaje recibido: " + mensajeRecibido);
+				sistema.recibirMensaje(mensajeRecibido);
+			}
+		} catch (IOException e) {
+			System.err.println("Error al recibir el mensaje: " + e.getMessage());
+		}
+	}
 
     public void cerrarConexion() {
         try {

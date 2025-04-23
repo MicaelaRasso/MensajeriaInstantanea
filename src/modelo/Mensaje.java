@@ -4,17 +4,17 @@ import java.time.LocalDateTime;
 
 public class Mensaje {
 	private String contenido;
-	private Usuario usuario;
+	private Contacto contacto;
 	private LocalDateTime fechaYHora;
 
-	public Mensaje(Usuario usuario, String contenido, LocalDateTime fechaYHora) {
-		this.usuario = usuario;
+	public Mensaje(Contacto contacto, String contenido, LocalDateTime fechaYHora) {
+		this.contacto = contacto;
 		this.contenido = contenido;
 		this.fechaYHora = fechaYHora;
 	}
 
-	public Usuario getUsuario() {
-		return usuario;
+	public Contacto getUsuario() {
+		return contacto;
 	}
 
 	public String getContenido() {
@@ -27,12 +27,12 @@ public class Mensaje {
 
 	@Override
 	public String toString() {
-		return usuario.getNombre() + ": // " + contenido + " // " + fechaYHora + " // " + usuario.getPuerto();
+		return contacto.getNombre() + ": // " + contenido + " // " + fechaYHora;
 	}
 	
 	public String paraMostrar() {
 		String salto = System.lineSeparator();
-		return usuario.toString() + ": " + salto + contenido + salto + fechaYHora;
+		return contacto.toString() + ": " + salto + contenido + salto + fechaYHora;
 	}
 
 }

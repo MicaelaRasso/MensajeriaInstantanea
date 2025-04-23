@@ -112,6 +112,27 @@ public class Controlador implements ActionListener {
 			}else {
 				//VENTANA PRINCIPAL
 				if(vPrincipal.getBtnConversacion().equals(e.getSource())) {
+					DefaultListModel<String> modelo = new DefaultListModel<>();
+				       
+			        if (sistema!=null && !sistema.getAgenda().isEmpty()) {
+				        Iterator<Contacto> it = sistema.getAgenda().values().iterator();
+				        
+				        while(it.hasNext()) {
+							Contacto c =  (Contacto) it.next();
+							modelo.addElement(c.toString());
+						}
+				        
+				        JList<String> listaContactos = new JList<>(modelo);
+				        listaContactos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				
+				        listaContactos.addListSelectionListener(f -> {
+				            if (!f.getValueIsAdjusting()) {
+				                String seleccionado = listaContactos.getSelectedValue();
+				                contactoActual = sistema.getContacto(seleccionado);
+				                crearConversacion(contactoActual);
+				                }
+				            });
+			        }
 					cargarContactos();
 					cargarConversaciones();
 
@@ -135,11 +156,7 @@ public class Controlador implements ActionListener {
 
 						String m = vPrincipal.getTxtrEscribirMensaje().getText().trim();
 						vPrincipal.getTxtrEscribirMensaje().setText("");
-						try {
-							sistema.enviarMensaje(m, contactoActual);
-						} catch (IOException e1) {
-							JOptionPane.showMessageDialog(null, "No se pudo establecer la conexión con el socket");
-						}
+						enviarMensaje(m, contactoActual);
 
 						SwingUtilities.invokeLater(() -> {
 							cargarMensajes();
@@ -168,7 +185,6 @@ public class Controlador implements ActionListener {
 		IP = "127.0.0.1";
 		String puerto = vInicio.getTfPuerto().getText();
 		if (!(nombre.equals("") || puerto.equals(""))) {
-
 			try {
 				int p = Integer.valueOf(puerto);
 				if (p < 0 || p > 65535) {
@@ -189,23 +205,9 @@ public class Controlador implements ActionListener {
 					} else {
 						Usuario usuario = new Usuario(nombre, IP, p); 
 						this.sistema = new Sistema(usuario, this);
-						
 
 						vInicio.setVisible(false);
 						vPrincipal.setVisible(true);
-						
-					/*	try {
-							sistema.iniciarServidor(nombre, p);
-							vInicio.setVisible(false);
-							vPrincipal.setVisible(true);
-						} catch (IOException e) {
-							JOptionPane.showMessageDialog(
-								    null,
-								    "El puerto ya está siendo utilizado",
-								    "ERROR 004",
-								    JOptionPane.WARNING_MESSAGE
-								);
-						}*/
 					}
 				}
 			}catch(NumberFormatException e){
@@ -228,65 +230,56 @@ public class Controlador implements ActionListener {
 	
 	private void agregarContacto() {
 		String nombre = vContacto.getTfNombre().getText();
-		String ip = vContacto.getTfIP().getText();
-		String puerto = vContacto.getTfPuerto().getText();
-		if (!(nombre.equals("") || ip.equals("") || puerto.equals(""))) {
-			int p = Integer.valueOf(puerto);
-			if (p < 0 || p > 65535) {
+		if (!(nombre.equals(""))) {
+			if(sistema.getAgenda().containsKey(nombre)){
+				//Los nicknames son unicos, no debería suceder
 				JOptionPane.showMessageDialog(
 					    null,
-					    "Puerto fuera de rango (0-65535)",
-					    "ERROR 002",
+					    "Se ha intentado agregar a un contacto ya agendado",
+					    "ERROR 006",
 					    JOptionPane.WARNING_MESSAGE
 					);
 			}else {
-				if(sistema.getAgenda().containsKey(nombre)){
-					//Los nicknames son unicos, no debería suceder
-					JOptionPane.showMessageDialog(
-						    null,
-						    "Se ha intentado cargar un usuario con un nombre no disponible, intente nuevamente",
-						    "ERROR 006",
-						    JOptionPane.WARNING_MESSAGE
-						);
-				}else {
-					try {
-						InetAddress.getByName(ip);
-						
-						Contacto c = new Contacto(nombre, ip, p);
-						sistema.agregarContacto(c);
+				sistema.agregarContacto(nombre);
+			
+				cargarContactos();
+				
+				vContacto.setVisible(false);
+				
+		        vPrincipal.revalidate();
+		        vPrincipal.repaint();
+				vPrincipal.setVisible(true);
+				JOptionPane.showMessageDialog(
+					    null,
+					    "Se ha agregado el contacto " + nombre,
+					    "Contacto agregado",
+					    JOptionPane.WARNING_MESSAGE
+					);
 					
-						cargarContactos();
-						
-						vContacto.setVisible(false);
-						
-				        vPrincipal.revalidate();
-				        vPrincipal.repaint();
-						vPrincipal.setVisible(true);
-						JOptionPane.showMessageDialog(
-							    null,
-							    "Se ha agregado el contacto " + nombre,
-							    "Contacto agregado",
-							    JOptionPane.WARNING_MESSAGE
-							);
-						
-					} catch (UnknownHostException e1) {
-						JOptionPane.showMessageDialog(
-							    null,
-							    "IP inválida, ingresar una IP válida",
-							    "ERROR 007",
-							    JOptionPane.WARNING_MESSAGE
-							);
-					}
 				}
-			}
 		}else {
 			JOptionPane.showMessageDialog(
 				    null,
-				    "Debe completar todos los campos",
+				    "Debe ingresar un nombre de contacto",
 				    "ERROR 001",
 				    JOptionPane.WARNING_MESSAGE
 				);
 			}
+	}
+	
+	public void crearConversacion(Contacto contacto) {
+		//revisa array de conversaciones, si ya existe, no la crea
+		
+		sistema.crearConversacion(contacto);
+	}
+	
+	public void enviarMensaje(String m, Contacto contactoActual){
+		try {
+			sistema.enviarMensaje(m, contactoActual);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void cargarContactos() {
@@ -480,7 +473,7 @@ public class Controlador implements ActionListener {
 	        cargarConversaciones();  // también para que aparezca la nueva conversación
 	        JOptionPane.showMessageDialog(
 				    null,
-				    "Se ha agregado el contacto " + c.getNombre() + c.getIP() + ":" + c.getPuerto(),
+				    "Se ha agregado el contacto " + c.getNombre(),
 				    "Contacto agregado",
 				    JOptionPane.WARNING_MESSAGE
 				);

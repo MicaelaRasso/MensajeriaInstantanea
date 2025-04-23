@@ -4,43 +4,12 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-public class Contacto extends Usuario {
-    private String ip;
+public class Contacto{
+	private String nombre;
     private Conversacion conversacion;
 
-    public Contacto(String nombre, String IP, int puerto) {
-        super(nombre, IP, puerto);
-    }
-    
- /*   public void recibirMensaje(String c, String fyh) {
-        conversacion.recibirMensaje(c, fyh, this);
-    }*/
-/*
-    public void enviarMensaje(Mensaje mensaje) {
-        try {
-        	mensaje.getUsuario().getConexion().enviarMensaje(mensaje); //deberia hacerlo desde usuario? 
-
-            // Si llegamos hasta acá, se envió correctamente => lo agregamos a la conversación
-            conversacion.enviarMensaje(mensaje, this);
-
-        } catch (IOException e) {
-            System.err.println("No se pudo enviar mensaje a " + getNombre());
-
-            // Mostrar notificación en la GUI
-            SwingUtilities.invokeLater(() -> {
-                JOptionPane.showMessageDialog(
-                    null,
-                    "No se pudo enviar el mensaje porque '" + getNombre() + "' no está conectado.",
-                    "Error de conexión",
-                    JOptionPane.WARNING_MESSAGE
-                );
-            });
-        }
-    }*/
-
-    // Getters
-    public String getIP() {
-        return ip;
+    public Contacto(String nombre) {
+        this.setNombre(nombre);
     }
 
     public Conversacion getConversacion() {
@@ -55,4 +24,12 @@ public class Contacto extends Usuario {
     public String toString() {
         return super.toString();
     }
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 }

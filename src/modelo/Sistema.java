@@ -11,6 +11,7 @@ import controlador.Controlador;
 
 public class Sistema {
 	private Usuario usuario;
+	private Conexion conexion;
 	private HashMap<String,Contacto> agenda = new HashMap<String,Contacto>();
 	private ArrayList<Conversacion> conversaciones = new ArrayList<Conversacion>();
 	private Controlador controlador;
@@ -18,34 +19,52 @@ public class Sistema {
 	public Sistema(Usuario usuario, Controlador controlador) {
 		this.usuario = usuario;
 		this.controlador = controlador;
+		try {
+			this.conexion = new Conexion(usuario.getIP(), usuario.getPuerto(), usuario.getNombre(), this);
+		} catch (IOException e) {
+			System.out.println("No pudo generarse la conexion");
+			e.printStackTrace();
+		}
 	}
 
 	//Metodos
 
-	public void agregarContacto(Contacto contacto) {
-		agenda.put(contacto.getNombre(), contacto);
+	public void agregarContacto(String nombreContacto) {
+		try {
+			if(conexion.agregarContacto(nombreContacto)){
+				Contacto contacto = new Contacto(nombreContacto);
+				agenda.put(nombreContacto, contacto);		
+			}
+		}
+		catch (IOException e) {
+			System.out.println("No se pudo agregar el contacto");
+			e.printStackTrace();
+		}
+	}
+	
+	public void crearConversacion(Contacto contacto) {
+		//creo la conversacion y la guardo en el contacto
 		Conversacion conv = new Conversacion(contacto);
 		contacto.setConversacion(conv);
-		conversaciones.add(conv);		
+		conversaciones.add(conv);
 	}
 
 	public Conversacion getConversacion(Contacto c) {
 		return c.getConversacion();
 	}
-	
 
 	public void enviarMensaje(String m, Contacto contacto) throws IOException {
-	    Mensaje mensaje = new Mensaje(usuario, m, LocalDateTime.now());
-	    //contacto.enviarMensaje(mensaje); //debe seguir siendo contacto?
+	    Mensaje mensaje = new Mensaje(contacto, m, LocalDateTime.now());
+	    
+	    conexion.enviarMensaje(mensaje);
 	    
 	    Conversacion conv = contacto.getConversacion();
 	    conv.enviarMensaje(mensaje, contacto);
-	    
-	    
+	        
 	}
 
 
-	public void recibirMensaje(String s, String ip) {
+	public void recibirMensaje(String s) {
 	    try {
 	        String[] partes = s.split("//");
 
@@ -54,7 +73,7 @@ public class Sistema {
 	            String contenido = partes[1].trim();
 	            String fechaYHoraStr = partes[2].trim();
 	            int puerto = Integer.parseInt(partes[3].trim());
-	            System.out.println("Mensaje recibido: " + s + " desde " + ip);
+	            System.out.println("Mensaje recibido: " + s);
 
 	            if (nombre.equals(usuario.getNombre()) && puerto == usuario.getPuerto()) {
 	                System.out.println("Mensaje de uno mismo ignorado.");
@@ -67,7 +86,7 @@ public class Sistema {
 	                cont = agenda.get(nombre);
 	                conv = cont.getConversacion();
 	            } else {
-	                cont = new Contacto(nombre, ip, puerto);
+	                cont = new Contacto(nombre);
 	                agenda.put(nombre, cont);
 	                conv = new Conversacion(cont);
 	                cont.setConversacion(conv);

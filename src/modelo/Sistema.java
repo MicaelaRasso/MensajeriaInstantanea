@@ -29,17 +29,10 @@ public class Sistema {
 
 	//Metodos
 
-	public void agregarContacto(String nombreContacto) {
+	public void consultaPorContacto(String nombreContacto) {
 		try {
-			if(conexion.agregarContacto(nombreContacto)){
-				Contacto contacto = new Contacto(nombreContacto);
-				agenda.put(nombreContacto, contacto);		
-			}
-		}
-		catch (IOException e) {
-			System.out.println("No se pudo agregar el contacto");
-			e.printStackTrace();
-		}
+			//armo el mensaje
+			conexion.enviarMensaje();
 	}
 	
 	public void crearConversacion(Contacto contacto) {

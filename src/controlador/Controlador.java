@@ -181,8 +181,8 @@ public class Controlador implements ActionListener {
 
 	private void registroInicial() {
 		String nombre = vInicio.getTfNombre().getText();
-		String IP = vInicio.getTfIP().getText(); //HAY QUE AGREGAR EL CONTENEDOR
-		IP = "127.0.0.1";
+		//String IP = vInicio.getTfIP().getText(); //HAY QUE AGREGAR EL CONTENEDOR
+		String IP = "127.0.0.1";
 		String puerto = vInicio.getTfPuerto().getText();
 		if (!(nombre.equals("") || puerto.equals(""))) {
 			try {
@@ -240,7 +240,7 @@ public class Controlador implements ActionListener {
 					    JOptionPane.WARNING_MESSAGE
 					);
 			}else {
-				sistema.agregarContacto(nombre);
+				sistema.consultaPorContacto(nombre);
 			
 				cargarContactos();
 				
@@ -295,17 +295,6 @@ public class Controlador implements ActionListener {
 	        
 	        JList<String> listaContactos = new JList<>(modelo);
 	        listaContactos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	
-	        /*listaContactos.addListSelectionListener(e -> {
-	            if (!e.getValueIsAdjusting()) {
-	                String seleccionado = listaContactos.getSelectedValue();
-	                if(seleccionado.contains("*")) {
-	                    seleccionado = seleccionado.replace("*", "");
-	                }
-	                //contactoActual = sistema.getContacto(seleccionado);
-	            }
-	        });*/
-	
 	        vPrincipal.getSpContactos().setViewportView(listaContactos);
         }	
 	

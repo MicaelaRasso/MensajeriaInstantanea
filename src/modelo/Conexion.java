@@ -42,7 +42,8 @@ public class Conexion {
 	
 	public boolean agregarContacto(String nombreContacto) throws IOException {
 		//pregunta a al servidor si existe este usuario
-		return true;
+		boolean respuesta = (respuesta del servidor);
+		return respuesta;
 	}
     
     public void enviarMensaje(Mensaje mensaje) throws IOException {

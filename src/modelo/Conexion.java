@@ -38,7 +38,7 @@ public class Conexion {
             throw new IOException("OutputStream no disponible para enviar mensaje.");
         }
         
-        out.println(request);  // Envía el mensaje como Json
+        out.println(Json);  // Envía el mensaje como Json
         out.flush();
 
         System.out.println("Mensaje enviado: " + request);
@@ -51,7 +51,7 @@ public class Conexion {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String requestRecibido = in.readLine();
 			if (requestRecibido != null) {
-				System.out.println("Paquete recibido: " + requestRecibido);
+				System.out.println("Request recibido: " + requestRecibido);
 				Request requestObj = JsonConverter.fromJson(requestRecibido);
 				if (requestObj.getOperacion().equals("mensaje")) {
 					sistema.recibirMensaje(requestObj);

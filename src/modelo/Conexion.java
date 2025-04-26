@@ -14,8 +14,6 @@ public class Conexion {
         this.IP = IP;
         this.puerto = puerto;
         this.sistema = sistema;
-        conectar(nombreUsuario);
-        cerrarConexion();
     }
 
 	private void conectar() throws IOException {

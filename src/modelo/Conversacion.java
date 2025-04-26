@@ -24,14 +24,14 @@ public class Conversacion {
 	}
 
 	
-	public void recibirMensaje(String contenido, String fechaYHoraStr, Contacto c) {
+	public void recibirMensaje(String contenido, LocalDateTime fechaYHoraStr, Contacto c) {
 	    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;  // El formato que tiene es ISO 8601
         LocalDateTime fechaYHora = LocalDateTime.parse(fechaYHoraStr, formatter);
         mensajes.add(new Mensaje(c, contenido, fechaYHora));
 	}
 
-	public void enviarMensaje(Mensaje mensaje, Contacto contacto) {
-		mensajes.add(mensaje);
+	public void agregarMensaje(String mensaje, LocalDateTime fechaYHora, Contacto c) {
+		mensajes.add(new Mensaje(c, mensaje, fechaYHora));
 	}
 	
 	//Getters

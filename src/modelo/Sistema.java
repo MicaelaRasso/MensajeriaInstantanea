@@ -30,21 +30,66 @@ public class Sistema {
 	//Metodos
 
 	public void consultaPorContacto(String nombreContacto) throws IOException {
-		Request paquete = new Request();
-		paquete.setOperacion("consulta");
-		paquete.setEmisor(this.usuario);
-		paquete.setReceptor(new Usuario());
-		paquete.setContenido(nombreContacto);
-		conexion.consultaContacto(paquete);
+		Request request = new Request();
+		request.setOperacion("consulta");
+		request.setEmisor(this.usuario);
+		request.setReceptor(new Usuario());
+		request.setContenido(nombreContacto);
+		conexion.consultaContacto(request);
 	}
 	
-	public void recibirConsulta(Request paquete) {
-		if (!paquete.getContenido().equals("")) {
-			Contacto c = new Contacto(paquete.getContenido());
+	public void recibirConsulta(Request request) {
+		if (!request.getContenido().equals("")) {
+			Contacto c = new Contacto(request.getContenido());
 			agenda.put(c.getNombre(), c);
 		}
 	}
-	
+
+	public void enviarMensaje(String mensaje, Contacto contacto) throws IOException {
+		Request request = crearRequest();
+		request.setOperacion("mensaje");
+		request.setEmisor(this.usuario);
+		request.setNombreReceptor(contacto.getNombre());
+		request.setContenido(mensaje);
+	    
+	    Conversacion conv = contacto.getConversacion();
+	    conv.agregarMensaje(mensaje, request.getFechaYHora(), contacto);        
+	}
+
+
+	public void recibirMensaje(Request paquete) {
+	    try {
+            String nombre = paquete.getEmisor().getNombre();
+            String contenido = paquete.getContenido();
+            LocalDateTime fechaYHoraStr = paquete.getFechaYHora();
+            System.out.println("Mensaje recibido: " + contenido);
+
+	        Contacto cont;
+	        Conversacion conv;
+            if (agenda.containsKey(nombre)) {
+                cont = agenda.get(nombre);
+                conv = cont.getConversacion();
+            } else {
+                cont = new Contacto(nombre);
+                agenda.put(nombre, cont);
+                conv = new Conversacion(cont);
+                cont.setConversacion(conv);
+                conversaciones.add(conv);
+                SwingUtilities.invokeLater(() -> controlador.contactoAgregado(cont));
+            }
+	            conv.recibirMensaje(contenido, fechaYHoraStr, cont);
+	            SwingUtilities.invokeLater(() -> {
+	                controlador.nuevoMensaje();
+	                controlador.notificarMensaje(cont);
+	            });
+	    } catch (NumberFormatException e) {
+	        System.err.println("Error al parsear el puerto: " + e.getMessage());
+	    } catch (Exception e) {
+	        System.err.println("Error al recibir mensaje: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	}
+		
 	public void crearConversacion(Contacto contacto) {
 		//creo la conversacion y la guardo en el contacto
 		Conversacion conv = new Conversacion(contacto);
@@ -55,65 +100,12 @@ public class Sistema {
 	public Conversacion getConversacion(Contacto c) {
 		return c.getConversacion();
 	}
-
-	public void enviarMensaje(String m, Contacto contacto) throws IOException {
-	    Mensaje mensaje = new Mensaje(contacto, m, LocalDateTime.now());
-	    
-	    conexion.enviarMensaje(mensaje);
-	    
-	    Conversacion conv = contacto.getConversacion();
-	    conv.enviarMensaje(mensaje, contacto);
-	        
-	}
-
-
-	public void recibirMensaje(String s) {
-	    try {
-	        String[] partes = s.split("//");
-
-	        if (partes.length == 4) {
-	            String nombre = partes[0].replace(":", "").trim();
-	            String contenido = partes[1].trim();
-	            String fechaYHoraStr = partes[2].trim();
-	            int puerto = Integer.parseInt(partes[3].trim());
-	            System.out.println("Mensaje recibido: " + s);
-
-	            if (nombre.equals(usuario.getNombre()) && puerto == usuario.getPuerto()) {
-	                System.out.println("Mensaje de uno mismo ignorado.");
-	                return;
-	            }
-
-	            Contacto cont;
-	            Conversacion conv;
-	            if (agenda.containsKey(nombre)) {
-	                cont = agenda.get(nombre);
-	                conv = cont.getConversacion();
-	            } else {
-	                cont = new Contacto(nombre);
-	                agenda.put(nombre, cont);
-	                conv = new Conversacion(cont);
-	                cont.setConversacion(conv);
-	                conversaciones.add(conv);
-	                SwingUtilities.invokeLater(() -> controlador.contactoAgregado(cont));
-
-	            }
-	            conv.recibirMensaje(contenido, fechaYHoraStr, cont);
-	            
-	            //cont.recibirMensaje(contenido, fechaYHoraStr);
-	            SwingUtilities.invokeLater(() -> {
-	                controlador.nuevoMensaje();
-	                controlador.notificarMensaje(cont);
-	            });
-
-	        } else {
-	            System.out.println("Mensaje mal formado: " + s);
-	        }
-	    } catch (NumberFormatException e) {
-	        System.err.println("Error al parsear el puerto: " + e.getMessage());
-	    } catch (Exception e) {
-	        System.err.println("Error al recibir mensaje: " + e.getMessage());
-	        e.printStackTrace();
-	    }
+	
+	public Request crearRequest() {
+		Request request = new Request();
+		request.setEmisor(this.usuario);
+		request.setReceptor(new Usuario());
+		return request;
 	}
 
 	public void contactoSinConexion(String s) {
@@ -134,7 +126,6 @@ public class Sistema {
 	public Usuario getUsuario() {
 		return usuario;
 	}
-
 
 	public ArrayList<Conversacion> getConversaciones() {
 		return conversaciones;

@@ -18,36 +18,24 @@ public class Conexion {
         cerrarConexion();
     }
 
-	private void conectar(String nombreUsuario) throws IOException {
+	private void conectar() throws IOException {
         try {
             this.socket = new Socket("127.0.0.1", 5000);
             this.out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            out.println(nombreUsuario); // Enviamos el nombre
-            String respuesta = in.readLine(); // Esperamos la respuesta del servidor
-
-            if ("1".equals(respuesta)) {
-                System.out.println("Conexión establecida con éxito como " + nombreUsuario);
-            } else {
-                System.err.println("Nombre de usuario en uso. Conexión rechazada.");
-                socket.close();
-                throw new IOException("Conexión rechazada por el servidor.");
-            }
         } catch (IOException e) {
-            System.err.println("Error al conectar con " + IP + ":" + puerto + " - " + e.getMessage());
+            System.err.println("Error al conectar con el servidor" + e.getMessage());
             throw e;
         }
     }
 	
-	public boolean agregarContacto(String nombreContacto) throws IOException {
-		//pregunta a al servidor si existe este usuario
-		boolean respuesta = (respuesta del servidor);
-		return respuesta;
+	public void consultaContacto(Request request) throws IOException {
+		String Json = JsonConverter.toJson(request);
+		enviarPaquete(Json);
 	}
     
-    public void enviarMensaje(Mensaje mensaje) throws IOException {
-        conectar(mensaje.getUsuario().getNombre());
+    public void enviarPaquete(String request) throws IOException {
+        conectar();
     	if (socket == null || socket.isClosed()) {
             throw new IOException("No hay conexión activa con el servidor.");
         }
@@ -56,21 +44,22 @@ public class Conexion {
             throw new IOException("OutputStream no disponible para enviar mensaje.");
         }
         
-        out.println(mensaje.toString());  // Envía el mensaje como string formateado
+        out.println(request);  // Envía el mensaje como string formateado
         out.flush();
 
-        System.out.println("Mensaje enviado: " + mensaje.toString());
+        System.out.println("Mensaje enviado: " + request);
 
         cerrarConexion(); // Si querés cerrar luego de enviar. Opcional.
     }
     
-    public void recibirMensaje() {
+    public void recibirPaquete() {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String mensajeRecibido = in.readLine();
-			if (mensajeRecibido != null) {
-				System.out.println("Mensaje recibido: " + mensajeRecibido);
-				sistema.recibirMensaje(mensajeRecibido);
+			String paqueteRecibido = in.readLine();
+			if (paqueteRecibido != null) {
+				System.out.println("Paquete recibido: " + paqueteRecibido);
+				Request paqueteObj = JsonConverter.fromJson(paqueteRecibido);
+				sistema.recibirPaquete(paqueteObj);
 			}
 		} catch (IOException e) {
 			System.err.println("Error al recibir el mensaje: " + e.getMessage());

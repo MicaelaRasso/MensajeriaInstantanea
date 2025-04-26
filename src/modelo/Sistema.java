@@ -31,8 +31,13 @@ public class Sistema {
 
 	public void consultaPorContacto(String nombreContacto) {
 		try {
-			//armo el mensaje
-			conexion.enviarMensaje();
+			//armo el paquete
+			conexion.consultaContacto(paquete);
+	}
+		
+	public void recibirConsulta(Request paquete) {
+		if (!paquete.getContenido().equals("")) {
+			Contacto c = new Contacto(paquete.getContenido());
 	}
 	
 	public void crearConversacion(Contacto contacto) {

@@ -35,7 +35,7 @@ public class Sistema {
 		request.setEmisor(this.usuario);
 		request.setReceptor(new Usuario());
 		request.setContenido(nombreContacto);
-		conexion.consultaContacto(request);
+		conexion.enviarRequest(request);
 	}
 	
 	public void recibirConsulta(Request request) {
@@ -53,15 +53,17 @@ public class Sistema {
 		request.setContenido(mensaje);
 	    
 	    Conversacion conv = contacto.getConversacion();
-	    conv.agregarMensaje(mensaje, request.getFechaYHora(), contacto);        
+	    conv.agregarMensaje(mensaje, request.getFechaYHora(), contacto);
+	    
+	    conexion.enviarRequest(request);
 	}
 
 
-	public void recibirMensaje(Request paquete) {
+	public void recibirMensaje(Request request) {
 	    try {
-            String nombre = paquete.getEmisor().getNombre();
-            String contenido = paquete.getContenido();
-            LocalDateTime fechaYHoraStr = paquete.getFechaYHora();
+            String nombre = request.getEmisor().getNombre();
+            String contenido = request.getContenido();
+            LocalDateTime fechaYHoraStr = request.getFechaYHora();
             System.out.println("Mensaje recibido: " + contenido);
 
 	        Contacto cont;

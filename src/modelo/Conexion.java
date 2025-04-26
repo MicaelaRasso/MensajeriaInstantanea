@@ -26,13 +26,9 @@ public class Conexion {
             throw e;
         }
     }
-	
-	public void consultaContacto(Request request) throws IOException {
-		String Json = JsonConverter.toJson(request);
-		enviarPaquete(Json);
-	}
-    
-    public void enviarPaquete(String request) throws IOException {
+   
+    public void enviarRequest(Request request) throws IOException {
+    	String Json = JsonConverter.toJson(request);
         conectar();
     	if (socket == null || socket.isClosed()) {
             throw new IOException("No hay conexión activa con el servidor.");
@@ -50,19 +46,19 @@ public class Conexion {
         cerrarConexion(); // Si querés cerrar luego de enviar. Opcional.
     }
     
-    public void recibirPaquete() {
+    public void recibirRequest() {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String paqueteRecibido = in.readLine();
-			if (paqueteRecibido != null) {
-				System.out.println("Paquete recibido: " + paqueteRecibido);
-				Request paqueteObj = JsonConverter.fromJson(paqueteRecibido);
-				if (paqueteObj.getOperacion().equals("mensaje")) {
-					sistema.recibirMensaje(paqueteObj);
-				} else if (paqueteObj.getOperacion().equals("consulta")) {
-					sistema.recibirConsulta(paqueteObj);
-				} else if (paqueteObj.getOperacion().equals("registro")) {
-					//sistema.recibirRegistro(paqueteObj);
+			String requestRecibido = in.readLine();
+			if (requestRecibido != null) {
+				System.out.println("Paquete recibido: " + requestRecibido);
+				Request requestObj = JsonConverter.fromJson(requestRecibido);
+				if (requestObj.getOperacion().equals("mensaje")) {
+					sistema.recibirMensaje(requestObj);
+				} else if (requestObj.getOperacion().equals("consulta")) {
+					sistema.recibirConsulta(requestObj);
+				} else if (requestObj.getOperacion().equals("registro")) {
+					//sistema.recibirRegistro(rObj);
 				}
 			}
 		} catch (IOException e) {

@@ -240,7 +240,12 @@ public class Controlador implements ActionListener {
 					    JOptionPane.WARNING_MESSAGE
 					);
 			}else {
-				sistema.consultaPorContacto(nombre);
+				try {
+					sistema.consultaPorContacto(nombre);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			
 				cargarContactos();
 				

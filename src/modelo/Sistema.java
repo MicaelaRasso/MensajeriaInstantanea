@@ -29,15 +29,20 @@ public class Sistema {
 
 	//Metodos
 
-	public void consultaPorContacto(String nombreContacto) {
-		try {
-			//armo el paquete
-			conexion.consultaContacto(paquete);
+	public void consultaPorContacto(String nombreContacto) throws IOException {
+		Request paquete = new Request();
+		paquete.setOperacion("consulta");
+		paquete.setEmisor(this.usuario);
+		paquete.setReceptor(new Usuario());
+		paquete.setContenido(nombreContacto);
+		conexion.consultaContacto(paquete);
 	}
-		
+	
 	public void recibirConsulta(Request paquete) {
 		if (!paquete.getContenido().equals("")) {
 			Contacto c = new Contacto(paquete.getContenido());
+			agenda.put(c.getNombre(), c);
+		}
 	}
 	
 	public void crearConversacion(Contacto contacto) {

@@ -44,7 +44,7 @@ public class Conexion {
             throw new IOException("OutputStream no disponible para enviar mensaje.");
         }
         
-        out.println(request);  // Envía el mensaje como string formateado
+        out.println(request);  // Envía el mensaje como Json
         out.flush();
 
         System.out.println("Mensaje enviado: " + request);
@@ -59,7 +59,13 @@ public class Conexion {
 			if (paqueteRecibido != null) {
 				System.out.println("Paquete recibido: " + paqueteRecibido);
 				Request paqueteObj = JsonConverter.fromJson(paqueteRecibido);
-				sistema.recibirPaquete(paqueteObj);
+				if (paqueteObj.getOperacion().equals("mensaje")) {
+					sistema.recibirMensaje(paqueteObj);
+				} else if (paqueteObj.getOperacion().equals("consulta")) {
+					sistema.recibirConsulta(paqueteObj);
+				} else if (paqueteObj.getOperacion().equals("registro")) {
+					//sistema.recibirRegistro(paqueteObj);
+				}
 			}
 		} catch (IOException e) {
 			System.err.println("Error al recibir el mensaje: " + e.getMessage());

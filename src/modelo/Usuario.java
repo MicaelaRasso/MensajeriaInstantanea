@@ -7,6 +7,13 @@ public class Usuario {
 	private String IP;
 	private int puerto;
 	
+	public Usuario() {
+		super();
+		this.nombre = "";
+		this.IP = "";
+		this.puerto = 0;
+	}
+	
 	public Usuario(String nombre, String IP, int puerto) {
 		super();
 		this.nombre = nombre;
@@ -33,6 +40,16 @@ public class Usuario {
 
 	public void setIP(String iP) {
 		IP = iP;
+	}
+
+	public void setPuerto(int int1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setNombre(String value) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

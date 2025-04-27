@@ -8,8 +8,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,8 +105,6 @@ public class Controlador implements ActionListener {
 			if(vContacto.getBtnAgregar().equals(e.getSource())) {
 				agregarContacto();
 				vContacto.getTfNombre().setText("");
-				vContacto.getTfIP().setText("");
-				vContacto.getTfPuerto().setText("");
 			}else {
 				//VENTANA PRINCIPAL
 				if(vPrincipal.getBtnConversacion().equals(e.getSource())) {
@@ -248,7 +244,7 @@ public class Controlador implements ActionListener {
 				}
 			
 				cargarContactos();
-				
+				System.out.println(sistema.getAgenda());
 				vContacto.setVisible(false);
 				
 		        vPrincipal.revalidate();

@@ -1,6 +1,5 @@
 package modelo;
 
-import java.io.IOException;
 
 public class Usuario {
 	private String nombre;

@@ -21,6 +21,7 @@ public class Sistema {
 		this.controlador = controlador;
 		try {
 			this.conexion = new Conexion(usuario.getIP(), usuario.getPuerto(), usuario.getNombre(), this);
+			System.out.println("Conexion establecida con el servidor");
 		} catch (IOException e) {
 			System.out.println("No pudo generarse la conexion");
 			e.printStackTrace();
@@ -40,8 +41,12 @@ public class Sistema {
 	
 	public void recibirConsulta(Request request) {
 		if (!request.getContenido().equals("")) {
-			Contacto c = new Contacto(request.getContenido());
-			agenda.put(c.getNombre(), c);
+			if (agenda.containsKey(request.getContenido())) {
+				System.out.println("El contacto ya existe en la agenda");
+			} else {
+				Contacto c = new Contacto(request.getContenido());
+				agenda.put(c.getNombre(), c);
+			}
 		}
 	}
 
@@ -51,7 +56,7 @@ public class Sistema {
 		request.setEmisor(this.usuario);
 		request.setNombreReceptor(contacto.getNombre());
 		request.setContenido(mensaje);
-	    
+		
 	    Conversacion conv = contacto.getConversacion();
 	    conv.agregarMensaje(mensaje, request.getFechaYHora(), contacto);
 	    
@@ -107,6 +112,7 @@ public class Sistema {
 		Request request = new Request();
 		request.setEmisor(this.usuario);
 		request.setReceptor(new Usuario());
+		request.setFechaYHora(LocalDateTime.now());
 		return request;
 	}
 

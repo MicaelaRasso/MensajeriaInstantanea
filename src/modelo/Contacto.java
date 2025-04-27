@@ -1,9 +1,5 @@
 package modelo;
 
-import java.io.IOException;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-
 public class Contacto{
 	private String nombre;
     private Conversacion conversacion;

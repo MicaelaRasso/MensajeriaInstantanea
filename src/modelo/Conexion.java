@@ -41,7 +41,7 @@ public class Conexion {
         out.println(Json);  // Envía el mensaje como Json
         out.flush();
 
-        System.out.println("Mensaje enviado: " + request);
+        System.out.println("Mensaje enviado: " + request.getContenido());
 
         cerrarConexion(); // Si querés cerrar luego de enviar. Opcional.
     }

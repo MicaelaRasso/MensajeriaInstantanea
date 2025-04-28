@@ -24,11 +24,11 @@ public class Conversacion {
 
 	
 	public void recibirMensaje(String contenido, LocalDateTime fechaYHora, Contacto c) {
-        mensajes.add(new Mensaje(c, contenido, fechaYHora));
+        mensajes.add(new Mensaje(c.getNombre(), contenido, fechaYHora));
 	}
 
-	public void agregarMensaje(String mensaje, LocalDateTime fechaYHora, Contacto c) {
-		mensajes.add(new Mensaje(c, mensaje, fechaYHora));
+	public void agregarMensaje(String mensaje, LocalDateTime fechaYHora, Usuario u) {
+		mensajes.add(new Mensaje(u.getNombre(), mensaje, fechaYHora));
 	}
 	
 	//Getters

@@ -43,12 +43,13 @@ public class Usuario {
 
 	public void setPuerto(int int1) {
 		// TODO Auto-generated method stub
+		this.puerto = int1;
 		
 	}
 
 	public void setNombre(String value) {
 		// TODO Auto-generated method stub
-		
+		this.nombre = value;
 	}
 	
 }

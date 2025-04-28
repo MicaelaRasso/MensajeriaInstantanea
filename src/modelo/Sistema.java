@@ -21,6 +21,7 @@ public class Sistema {
 		this.controlador = controlador;
 		try {
 			this.conexion = new Conexion(usuario.getIP(), usuario.getPuerto(), usuario.getNombre(), this);
+			this.registrarUsuario();
 			System.out.println("Conexion establecida con el servidor");
 		} catch (IOException e) {
 			System.out.println("No pudo generarse la conexion");
@@ -31,10 +32,10 @@ public class Sistema {
 	//Metodos
 
 	public void consultaPorContacto(String nombreContacto) throws IOException {
-		Request request = new Request();
+		Request request = crearRequest();
 		request.setOperacion("consulta");
 		request.setEmisor(this.usuario);
-		request.setReceptor(new Usuario());
+		request.setReceptor(this.usuario);
 		request.setContenido(nombreContacto);
 		conexion.enviarRequest(request);
 	}
@@ -44,6 +45,7 @@ public class Sistema {
 			if (agenda.containsKey(request.getContenido())) {
 				System.out.println("El contacto ya existe en la agenda");
 			} else {
+				System.out.println("Contacto agregado");
 				Contacto c = new Contacto(request.getContenido());
 				agenda.put(c.getNombre(), c);
 			}
@@ -53,12 +55,11 @@ public class Sistema {
 	public void enviarMensaje(String mensaje, Contacto contacto) throws IOException {
 		Request request = crearRequest();
 		request.setOperacion("mensaje");
-		request.setEmisor(this.usuario);
 		request.setNombreReceptor(contacto.getNombre());
 		request.setContenido(mensaje);
 		
 	    Conversacion conv = contacto.getConversacion();
-	    conv.agregarMensaje(mensaje, request.getFechaYHora(), contacto);
+	    conv.agregarMensaje(mensaje, request.getFechaYHora(), usuario);
 	    
 	    conexion.enviarRequest(request);
 	}
@@ -124,12 +125,24 @@ public class Sistema {
 		//Una vez definido el funcionamiento del nuevo servidor, rehacer esta función
 	   
 	}
-	
+	private void registrarUsuario() throws IOException {
+		Request request = new Request();
+		request.setOperacion("registro");
+		request.setEmisor(this.usuario);
+		request.setReceptor(new Usuario());
+		request.setFechaYHora(LocalDateTime.now());
+		try {			
+			this.conexion.enviarRequest(request);
+		} catch (IOException e) {
+			System.out.println("No pudo registrarse el usuario");
+			e.printStackTrace();
+		}
+	}
+	//Getters
 	public Contacto getContacto(String seleccionado) {
 		return agenda.get(seleccionado);
 	}
 	
-	//Getters
 	
 	public Usuario getUsuario() {
 		return usuario;

@@ -74,7 +74,7 @@ public class Servidor {
             	    String message = in.readLine(); // Lee solo un mensaje
             	    if (message != null && !"exit".equalsIgnoreCase(message)) {
             	        System.out.println("Recibiendo mensaje: " + message);
-            	        sistema.recibirMensaje(message, socket.getInetAddress().getHostAddress());
+            	        sistema.recibirMensaje(message);
             	    }
             	} catch (Exception e) {
             	    e.printStackTrace();

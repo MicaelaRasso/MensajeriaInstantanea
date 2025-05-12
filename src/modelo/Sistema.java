@@ -2,7 +2,6 @@ package modelo;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,97 +11,85 @@ import controlador.Controlador;
 
 public class Sistema {
 	private Usuario usuario;
+	private Conexion conexion;
 	private HashMap<String,Contacto> agenda = new HashMap<String,Contacto>();
 	private ArrayList<Conversacion> conversaciones = new ArrayList<Conversacion>();
-	private static Servidor servidor;
 	private Controlador controlador;
 
 	public Sistema(Usuario usuario, Controlador controlador) {
 		this.usuario = usuario;
 		this.controlador = controlador;
+		try {
+			this.conexion = new Conexion(usuario.getIP(), usuario.getPuerto(), usuario.getNombre(), this);
+			this.registrarUsuario();
+			System.out.println("Conexion establecida con el servidor");
+		} catch (IOException e) {
+			System.out.println("No pudo generarse la conexion");
+			e.printStackTrace();
+		}
 	}
 
 	//Metodos
 
-	public void iniciarServidor(String nombre, int puerto) throws IOException {
-		this.usuario = new Usuario(nombre, puerto);
-		Sistema.servidor = new Servidor(puerto, this);
-		Sistema.servidor.iniciar();
-	}
-
-	public void agregarContacto(Contacto contacto) {
-		agenda.put(contacto.getNombre(), contacto);
-		Conversacion conv = new Conversacion(contacto);
-		contacto.setConversacion(conv);
-		conversaciones.add(conv);		
-	}
-
-	public Conversacion getConversacion(Contacto c) {
-		return c.getConversacion();
+	public void consultaPorContacto(String nombreContacto) throws IOException {
+		Request request = crearRequest();
+		request.setOperacion("consulta");
+		request.setEmisor(this.usuario);
+		request.setReceptor(this.usuario);
+		request.setContenido(nombreContacto);
+		conexion.enviarRequest(request);
 	}
 	
+	public void recibirConsulta(Request request) {
+		if (!request.getContenido().equals("")) {
+			if (agenda.containsKey(request.getContenido())) {
+				System.out.println("El contacto ya existe en la agenda");
+			} else {
+				System.out.println("Contacto agregado");
+				Contacto c = new Contacto(request.getContenido());
+				agenda.put(c.getNombre(), c);
+			}
+		}
+	}
 
-	public void enviarMensaje(String m, Contacto contacto) throws IOException {
-	    Mensaje mensaje = new Mensaje(usuario, m, LocalDateTime.now());
-
-	    if (contacto.getCliente() == null) {
-	        try {
-	            Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
-	            contacto.setCliente(cliente);
-	        } catch (IOException e) {
-	            contactoSinConexion("No se pudo conectar con: " + contacto.getNombre());
-	            return;
-	        }
-	    }
-
-	    contacto.enviarMensaje(mensaje);
+	public void enviarMensaje(String mensaje, Contacto contacto) throws IOException {
+		Request request = crearRequest();
+		request.setOperacion("mensaje");
+		request.setNombreReceptor(contacto.getNombre());
+		request.setContenido(mensaje);
+		
+	    Conversacion conv = contacto.getConversacion();
+	    conv.agregarMensaje(mensaje, request.getFechaYHora(), usuario);
+	    
+	    conexion.enviarRequest(request);
 	}
 
 
-	public void recibirMensaje(String s, String ip) {
+	public void recibirMensaje(Request request) {
 	    try {
-	        String[] partes = s.split("//");
+            String nombre = request.getEmisor().getNombre();
+            String contenido = request.getContenido();
+            LocalDateTime fechaYHoraStr = request.getFechaYHora();
+            System.out.println("Mensaje recibido: " + contenido);
 
-	        if (partes.length == 4) {
-	            String nombre = partes[0].replace(":", "").trim();
-	            String contenido = partes[1].trim();
-	            String fechaYHoraStr = partes[2].trim();
-	            int puerto = Integer.parseInt(partes[3].trim());
-	            System.out.println("Mensaje recibido: " + s + " desde " + ip);
-
-	            if (nombre.equals(usuario.getNombre()) && puerto == usuario.getPuerto()) {
-	                System.out.println("Mensaje de uno mismo ignorado.");
-	                return;
-	            }
-
-	            Contacto cont;
-	            if (agenda.containsKey(nombre)) {
-	                cont = agenda.get(nombre);
-	            } else {
-	                cont = new Contacto(nombre, ip, puerto);
-	                agenda.put(nombre, cont);
-	                Conversacion conv = new Conversacion(cont);
-	                cont.setConversacion(conv);
-	                conversaciones.add(conv);
-	                SwingUtilities.invokeLater(() -> controlador.contactoAgregado(cont));
-	                try {
-	                    Cliente cliente = new Cliente(ip, puerto);
-	                    cont.setCliente(cliente);
-	                } catch (IOException e) {
-	                    System.err.println("No se pudo establecer conexión saliente con " + nombre);
-	                }
-
-	            }
-
-	            cont.recibirMensaje(contenido, fechaYHoraStr);
+	        Contacto cont;
+	        Conversacion conv;
+            if (agenda.containsKey(nombre)) {
+                cont = agenda.get(nombre);
+                conv = cont.getConversacion();
+            } else {
+                cont = new Contacto(nombre);
+                agenda.put(nombre, cont);
+                conv = new Conversacion(cont);
+                cont.setConversacion(conv);
+                conversaciones.add(conv);
+                SwingUtilities.invokeLater(() -> controlador.contactoAgregado(cont));
+            }
+	            conv.recibirMensaje(contenido, fechaYHoraStr, cont);
 	            SwingUtilities.invokeLater(() -> {
 	                controlador.nuevoMensaje();
 	                controlador.notificarMensaje(cont);
 	            });
-
-	        } else {
-	            System.out.println("Mensaje mal formado: " + s);
-	        }
 	    } catch (NumberFormatException e) {
 	        System.err.println("Error al parsear el puerto: " + e.getMessage());
 	    } catch (Exception e) {
@@ -110,52 +97,55 @@ public class Sistema {
 	        e.printStackTrace();
 	    }
 	}
+		
+	public void crearConversacion(Contacto contacto) {
+		//creo la conversacion y la guardo en el contacto
+		Conversacion conv = new Conversacion(contacto);
+		contacto.setConversacion(conv);
+		conversaciones.add(conv);
+	}
+
+	public Conversacion getConversacion(Contacto c) {
+		return c.getConversacion();
+	}
+	
+	public Request crearRequest() {
+		Request request = new Request();
+		request.setEmisor(this.usuario);
+		request.setReceptor(new Usuario());
+		request.setFechaYHora(LocalDateTime.now());
+		return request;
+	}
 
 	public void contactoSinConexion(String s) {
 		controlador.contactoSinConexion(s, "ERROR 009");		
 	}
 
 	public void notificarDesconexion() {
-	    for (Contacto contacto : agenda.values()) {
-	        try {
-	            // Si ya hay cliente, usarlo, si no, crearlo
-	            if (contacto.getCliente() == null) {
-	                Cliente cliente = new Cliente(contacto.getIP(), contacto.getPuerto());
-	                contacto.setCliente(cliente);
-	            }
 
-	            Mensaje msg = new Mensaje(usuario, "[DESCONECTADO]", LocalDateTime.now());
-	            contacto.getCliente().enviarMensaje(msg);
-	        } catch (IOException e) {
-	            System.out.println("No se pudo notificar a " + contacto.getNombre());
-	        }
-	    }
-
-	    // Detener servidor (si querés)
-	    if (servidor != null) {
-	        try {
-				servidor.terminar();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}  // suponiendo que tenés un método así
-	    }
 	}
-	
+	private void registrarUsuario() throws IOException {
+		Request request = new Request();
+		request.setOperacion("registro");
+		request.setEmisor(this.usuario);
+		request.setReceptor(new Usuario());
+		request.setFechaYHora(LocalDateTime.now());
+		try {			
+			this.conexion.enviarRequest(request);
+		} catch (IOException e) {
+			System.out.println("No pudo registrarse el usuario");
+			e.printStackTrace();
+		}
+	}
+	//Getters
 	public Contacto getContacto(String seleccionado) {
 		return agenda.get(seleccionado);
 	}
 	
-	//Getters
 	
 	public Usuario getUsuario() {
 		return usuario;
 	}
-
-	public Servidor getServidor() {
-		return servidor;
-	}
-
 
 	public ArrayList<Conversacion> getConversaciones() {
 		return conversaciones;
@@ -167,7 +157,7 @@ public class Sistema {
 
 	public static boolean isPortAvailable(int p) {
 		
-		return Servidor.isPortAvailable(p);
+		return true;
 	}
 
 }

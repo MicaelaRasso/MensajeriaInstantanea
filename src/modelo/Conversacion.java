@@ -1,7 +1,6 @@
 package modelo;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Conversacion {
@@ -24,14 +23,12 @@ public class Conversacion {
 	}
 
 	
-	public void recibirMensaje(String contenido, String fechaYHoraStr, Contacto c) {
-	    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;  // El formato que tienes es ISO 8601
-        LocalDateTime fechaYHora = LocalDateTime.parse(fechaYHoraStr, formatter);
-        mensajes.add(new Mensaje(c, contenido, fechaYHora));
+	public void recibirMensaje(String contenido, LocalDateTime fechaYHora, Contacto c) {
+        mensajes.add(new Mensaje(c.getNombre(), contenido, fechaYHora));
 	}
 
-	public void enviarMensaje(Mensaje mensaje, Contacto contacto) {
-		mensajes.add(mensaje);
+	public void agregarMensaje(String mensaje, LocalDateTime fechaYHora, Usuario u) {
+		mensajes.add(new Mensaje(u.getNombre(), mensaje, fechaYHora));
 	}
 	
 	//Getters

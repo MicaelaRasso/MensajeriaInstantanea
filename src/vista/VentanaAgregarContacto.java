@@ -2,7 +2,6 @@ package vista;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -23,8 +22,6 @@ public class VentanaAgregarContacto extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField tfNombre;
-	private JTextField tfIP;
-	private JTextField tfPuerto;
 	private JButton btnAgregar;
 	private JButton btnVolver;
 	protected Point mouseClickPoint;
@@ -68,28 +65,6 @@ public class VentanaAgregarContacto extends JFrame {
 		tfNombre.setColumns(10);
 		tfNombre.setBounds(40, 70, 200, 30);
 		contentPane.add(tfNombre);
-		
-		JLabel lblIP = new JLabel("IP");
-		lblIP.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-		lblIP.setHorizontalAlignment(SwingConstants.CENTER);
-		lblIP.setBounds(40, 115, 200, 20);
-		contentPane.add(lblIP);
-		
-		tfIP = new JTextField();
-		tfIP.setColumns(10);
-		tfIP.setBounds(40, 140, 200, 30);
-		contentPane.add(tfIP);
-		
-		JLabel lblPuerto = new JLabel("Puerto");
-		lblPuerto.setHorizontalAlignment(SwingConstants.CENTER);
-		lblPuerto.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-		lblPuerto.setBounds(40, 190, 200, 20);
-		contentPane.add(lblPuerto);
-		
-		tfPuerto = new JTextField();
-		tfPuerto.setColumns(10);
-		tfPuerto.setBounds(40, 215, 200, 30);
-		contentPane.add(tfPuerto);
 		
 		btnAgregar = new JButton("Agregar");
         btnAgregar.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
@@ -150,14 +125,6 @@ public class VentanaAgregarContacto extends JFrame {
 
 	public JTextField getTfNombre() {
 		return tfNombre;
-	}
-
-	public JTextField getTfIP() {
-		return tfIP;
-	}
-
-	public JTextField getTfPuerto() {
-		return tfPuerto;
 	}
 
 	public JButton getBtnAgregar() {

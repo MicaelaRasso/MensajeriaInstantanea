@@ -17,6 +17,7 @@ public class JsonConverter {
         em.setIP(extractValue(emisorBlock, "ip"));
         em.setPuerto(Integer.parseInt(extractValue(emisorBlock, "puerto")));
         req.setEmisor(em);
+		System.out.println(json);
 
         String receptorBlock = extractBlock(json, "receptor");
         Usuario rec = new Usuario();

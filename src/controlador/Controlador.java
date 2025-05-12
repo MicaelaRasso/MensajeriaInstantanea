@@ -104,33 +104,25 @@ public class Controlador implements ActionListener {
 			//VENTANA AGREGAR CONTACTO - Crea contacto e inicia la conversación (en sistema)
 			if(vContacto.getBtnAgregar().equals(e.getSource())) {
 				agregarContacto();
+				cargarContactos();
 				vContacto.getTfNombre().setText("");
 			}else {
 				//VENTANA PRINCIPAL
 				if(vPrincipal.getBtnConversacion().equals(e.getSource())) {
 					DefaultListModel<String> modelo = new DefaultListModel<>();
-				       
+					System.out.println("boton conversaciones");   
 			        if (sistema!=null && !sistema.getAgenda().isEmpty()) {
 				        Iterator<Contacto> it = sistema.getAgenda().values().iterator();
-				        
 				        while(it.hasNext()) {
 							Contacto c =  (Contacto) it.next();
-							modelo.addElement(c.toString());
+							modelo.addElement(c.getNombre());
 						}
 				        
-				        JList<String> listaContactos = new JList<>(modelo);
-				        listaContactos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				
-				        listaContactos.addListSelectionListener(f -> {
-				            if (!f.getValueIsAdjusting()) {
-				                String seleccionado = listaContactos.getSelectedValue();
-				                contactoActual = sistema.getContacto(seleccionado);
-				                crearConversacion(contactoActual);
-				                }
-				            });
+		                System.out.println("cargando conversaciones");
+		                crearConversacion(contactoActual);
+		                cargarConversaciones();
 			        }
-					cargarContactos();
-					cargarConversaciones();
+					
 
 			        vPrincipal.revalidate();
 			        vPrincipal.repaint();
@@ -152,6 +144,7 @@ public class Controlador implements ActionListener {
 
 						String m = vPrincipal.getTxtrEscribirMensaje().getText().trim();
 						vPrincipal.getTxtrEscribirMensaje().setText("");
+						System.out.println(contactoActual);
 						enviarMensaje(m, contactoActual);
 
 						SwingUtilities.invokeLater(() -> {
@@ -243,7 +236,6 @@ public class Controlador implements ActionListener {
 					e.printStackTrace();
 				}
 			
-				cargarContactos();
 				System.out.println(sistema.getAgenda());
 				vContacto.setVisible(false);
 				
@@ -291,12 +283,19 @@ public class Controlador implements ActionListener {
 	        
 	        while(it.hasNext()) {
 				Contacto c =  (Contacto) it.next();
-				modelo.addElement(c.toString());
+				modelo.addElement(c.getNombre());
 			}
 	        
 	        JList<String> listaContactos = new JList<>(modelo);
 	        listaContactos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	        vPrincipal.getSpContactos().setViewportView(listaContactos);
+	        
+	        listaContactos.addListSelectionListener(f -> {
+	            if (!f.getValueIsAdjusting()) {
+	                String seleccionado = listaContactos.getSelectedValue();
+	                contactoActual = sistema.getContacto(seleccionado);
+	            }
+	        });
         }	
 	
 	}
@@ -330,7 +329,7 @@ public class Controlador implements ActionListener {
 	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	    String fechaFormateada = m.getFechaYHora().format(formatter);
 
-	    boolean esMio = m.getUsuario().equals(sistema.getUsuario());
+	    boolean esMio = m.getEmisor().equals(sistema.getUsuario().getNombre());
 
 	    // Colores personalizados
 	    Color cFondo = new Color(232, 218, 239); // lila claro
@@ -346,7 +345,7 @@ public class Controlador implements ActionListener {
 	    panelMensaje.setBackground(colorFondoMensaje);
 	    panelMensaje.setAlignmentX(esMio ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
 
-	    JLabel lblUsuario = new JLabel(m.getUsuario().getNombre() + ":");
+	    JLabel lblUsuario = new JLabel(m.getEmisor() + ":");
 	    lblUsuario.setFont(new Font("Segoe UI Semibold", Font.ITALIC, 12));
 	    lblUsuario.setForeground(new Color(50, 50, 50));
 
@@ -406,6 +405,7 @@ public class Controlador implements ActionListener {
         DefaultListModel<String> modelo = new DefaultListModel<>();
        
         if (sistema!=null && !sistema.getConversaciones().isEmpty()) {
+        	System.out.println("cargando conversaciones");
 	        Iterator<Conversacion> it = sistema.getConversaciones().iterator();
 	        
 	        while (it.hasNext()) {
@@ -423,7 +423,6 @@ public class Controlador implements ActionListener {
 	        		if (seleccionado.contains(" *")) {
 	        			seleccionado = seleccionado.replace(" *", "");  // Quitamos asterisco
 	        		}
-
 	        		if (sistema.getAgenda().containsKey(seleccionado)) {
 	        			contactoActual = sistema.getContacto(seleccionado);
 	        			cargarMensajes();

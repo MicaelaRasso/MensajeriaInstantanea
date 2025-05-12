@@ -12,7 +12,7 @@ public class Usuario {
 		this.puerto = 0;
 	}
 	
-	public Usuario(String nombre, int puerto) {
+	public Usuario(String nombre,String IP, int puerto) {
 		super();
 		this.nombre = nombre;
 		this.setIP(IP);

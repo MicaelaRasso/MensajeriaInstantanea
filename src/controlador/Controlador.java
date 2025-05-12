@@ -170,7 +170,6 @@ public class Controlador implements ActionListener {
 
 	private void registroInicial() {
 		String nombre = vInicio.getTfNombre().getText();
-
 		//String IP = vInicio.getTfIP().getText(); //HAY QUE AGREGAR EL CONTENEDOR
 		String IP = "127.0.0.1";
 		String puerto = vInicio.getTfPuerto().getText();
@@ -193,7 +192,7 @@ public class Controlador implements ActionListener {
 							    JOptionPane.WARNING_MESSAGE
 							);
 					} else {
-						Usuario usuario = new Usuario(nombre, p); 
+						Usuario usuario = new Usuario(nombre, IP, p); 
 						this.sistema = new Sistema(usuario, this);
 
 						vInicio.setVisible(false);

@@ -5,19 +5,23 @@ import java.net.*;
 
 public class Conexion {
     private Socket socket;
-    private ServerSocket serverSocket;
+    private boolean connected = false;
     private PrintWriter out;
     private String IP;
-    private int puerto;
 	private Sistema sistema;
 
-    public Conexion(String IP, int puerto, String nombreUsuario, Sistema sistema) throws IOException {
+    public Conexion(String IP, String nombreUsuario, Sistema sistema) throws IOException {
         this.IP = IP;
-        this.puerto = puerto;
         this.sistema = sistema;
-        iniciar();
+        try {        	
+        	this.conectar();
+            System.out.println("Conexion establecida con el servidor");
+        }catch (IOException e) {
+            System.err.println("Error al conectar con el servidor" + e.getMessage());
+            throw e;
+        }
     }
-    
+    /*
     public void iniciar() throws IOException {
         Runnable servidorRunnable = new Runnable() {
             @Override
@@ -38,21 +42,27 @@ public class Conexion {
             }
         };
         new Thread(servidorRunnable).start();
+    }*/
+    
+    public void conectar() throws IOException {
+    	try {    		
+    		this.socket = new Socket("127.0.0.1", 5000);
+    		this.out = new PrintWriter(socket.getOutputStream(), true);
+    		this.recibirRequest(socket);
+    		this.connected = true;
+    	}catch(IOException e){
+    		throw new IOException();
+    	}
     }
 
-	private void conectar() throws IOException {
-        try {
-            this.socket = new Socket("127.0.0.1", 5000);
-            this.out = new PrintWriter(socket.getOutputStream(), true);
-        } catch (IOException e) {
-            System.err.println("Error al conectar con el servidor" + e.getMessage());
-            throw e;
-        }
-    }
    
     public void enviarRequest(Request request) throws IOException {
+    	
+    	if(connected == false) {
+    		System.out.println("entra");
+    		conectar();
+    	}
     	String Json = JsonConverter.toJson(request);
-        conectar();
     	if (socket == null || socket.isClosed()) {
             throw new IOException("No hay conexión activa con el servidor.");
         }
@@ -63,8 +73,8 @@ public class Conexion {
         
         out.println(Json);  // Envía el mensaje como Json
         out.flush();
-        System.out.println("Mensaje enviado: " + request.getContenido());
-        cerrarConexion();
+        System.out.println("Mensaje enviado: " + Json);
+        //cerrarConexion();
     }
     
     /*public void recibirRequest(Socket serverSocket) {
@@ -90,21 +100,20 @@ public class Conexion {
 		}
 	}*/
     
-    public void recibirRequest(Socket serverSocket) {
+    public void recibirRequest(Socket socket) {
         new Thread(() -> {  // Hacerlo en un hilo separado para que pueda recibir varios mensajes
             try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String requestRecibido;
                 while ((requestRecibido = in.readLine()) != null) {
                     System.out.println("Recibiendo una respuesta...");
                     System.out.println("Request recibido: " + requestRecibido);
                     Request requestObj = JsonConverter.fromJson(requestRecibido);
-                    System.out.println(requestObj.getContenido());
 
                     if (requestObj.getOperacion().equals("mensaje")) {
                         sistema.recibirMensaje(requestObj);
                     } else if (requestObj.getOperacion().equals("consulta")) {
-                        sistema.recibirConsulta(requestObj);
+                    		sistema.recibirConsulta(requestObj);
                     } else if (requestObj.getOperacion().equals("registro")) {
                         //sistema.recibirRegistro(rObj);
                     }
@@ -113,7 +122,7 @@ public class Conexion {
                 System.err.println("Error al recibir el mensaje: " + e.getMessage());
             } finally {
                 try {
-                    serverSocket.close();
+                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

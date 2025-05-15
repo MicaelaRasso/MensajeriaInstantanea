@@ -19,36 +19,41 @@ public class Sistema {
 	public Sistema(Usuario usuario, Controlador controlador) {
 		this.usuario = usuario;
 		this.controlador = controlador;
-		try {
-			this.conexion = new Conexion(usuario.getIP(), usuario.getPuerto(), usuario.getNombre(), this);
-			this.registrarUsuario();
-			System.out.println("Conexion establecida con el servidor");
-		} catch (IOException e) {
-			System.out.println("No pudo generarse la conexion");
-			e.printStackTrace();
-		}
 	}
 
 	//Metodos
-
+	public void iniciarConexion() throws IOException {
+		try {
+			this.conexion = new Conexion(usuario.getIP(), usuario.getNombre(), this);
+			this.registrarUsuario();
+		} catch (IOException e) {
+			throw new IOException();
+		}
+	}
 	public void consultaPorContacto(String nombreContacto) throws IOException {
 		Request request = crearRequest();
 		request.setOperacion("consulta");
 		request.setEmisor(this.usuario);
 		request.setReceptor(this.usuario);
 		request.setContenido(nombreContacto);
+		System.out.println(request.getOperacion());
 		conexion.enviarRequest(request);
 	}
 	
-	public void recibirConsulta(Request request) {
+	public void recibirConsulta(Request request) throws IOException {
 		if (!request.getContenido().equals("")) {
+			System.out.println("recibiendo consulta");
 			if (agenda.containsKey(request.getContenido())) {
 				System.out.println("El contacto ya existe en la agenda");
+				this.controlador.NotificarRespuestaServidor("El contacto ya existe en la agenda", false);
 			} else {
 				System.out.println("Contacto agregado");
 				Contacto c = new Contacto(request.getContenido());
 				agenda.put(c.getNombre(), c);
+				this.controlador.NotificarRespuestaServidor("El usuario ha sido registrado exitosamente", true);
 			}
+		}else {
+			this.controlador.NotificarRespuestaServidor("El usuario ingresado no existe", false);
 		}
 	}
 
@@ -135,6 +140,7 @@ public class Sistema {
 		} catch (IOException e) {
 			System.out.println("No pudo registrarse el usuario");
 			e.printStackTrace();
+			throw e;
 		}
 	}
 	//Getters

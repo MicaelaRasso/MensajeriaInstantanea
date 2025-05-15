@@ -10,14 +10,12 @@ public class JsonConverter {
 	public static Request fromJson(String json) {
         Request req = new Request();
         req.setOperacion(extractValue(json, "operacion"));
-
+        System.out.println("entra json");
         String emisorBlock = extractBlock(json, "emisor");
         Usuario em = new Usuario();
         em.setNombre(extractValue(emisorBlock, "nombre"));
         em.setIP(extractValue(emisorBlock, "ip"));
-        em.setPuerto(Integer.parseInt(extractValue(emisorBlock, "puerto")));
         req.setEmisor(em);
-		System.out.println(json);
 
         String receptorBlock = extractBlock(json, "receptor");
         Usuario rec = new Usuario();
@@ -37,6 +35,7 @@ public class JsonConverter {
      * Convierte un objeto Request en su representación JSON.
      */
     public static String toJson(Request request) {
+    	String n = "1234";
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("\"operacion\":\"")
@@ -49,7 +48,7 @@ public class JsonConverter {
         sb.append("\"ip\":\"")
           .append(request.getEmisor().getIP()).append("\",");
         sb.append("\"puerto\":")
-          .append(request.getEmisor().getPuerto());
+          .append(n);
         sb.append("},");
 
         // Receptor

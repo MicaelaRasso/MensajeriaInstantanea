@@ -64,10 +64,11 @@ public class VentanaInicio extends JFrame{
 		JLabel lblNombre = new JLabel("Nombre de usuario");
 		lblNombre.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
 		lblNombre.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNombre.setVerticalAlignment(SwingConstants.CENTER);
 		lblNombre.setBounds(50, 65, 200, 20);
 		contentPane.add(lblNombre);
 		
-		JLabel lblPuerto = new JLabel("Puerto");
+		/*JLabel lblPuerto = new JLabel("Puerto");
 		lblPuerto.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
 		lblPuerto.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPuerto.setBounds(50, 135, 200, 20);
@@ -76,7 +77,7 @@ public class VentanaInicio extends JFrame{
 		tfPuerto = new JTextField();
 		tfPuerto.setColumns(10);
 		tfPuerto.setBounds(50, 160, 200, 30);
-		contentPane.add(tfPuerto);
+		contentPane.add(tfPuerto);*/
 		
 		btnIngresar = new JButton("Ingresar");
 		btnIngresar.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));

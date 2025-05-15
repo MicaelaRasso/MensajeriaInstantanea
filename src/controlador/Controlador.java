@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 
 import modelo.Contacto;
 import modelo.Conversacion;
+import modelo.InvalidUserException;
 import modelo.Mensaje;
 import modelo.Sistema;
 import modelo.Usuario;
@@ -172,42 +173,22 @@ public class Controlador implements ActionListener {
 		String nombre = vInicio.getTfNombre().getText();
 		//String IP = vInicio.getTfIP().getText(); //HAY QUE AGREGAR EL CONTENEDOR
 		String IP = "127.0.0.1";
-		String puerto = vInicio.getTfPuerto().getText();
-		if (!(nombre.equals("") || puerto.equals(""))) {
-			try {
-				int p = Integer.valueOf(puerto);
-				if (p < 0 || p > 65535) {
-					JOptionPane.showMessageDialog(
-						    null,
-						    "Puerto fuera de rango (0-65535)",
-						    "ERROR 002",
-						    JOptionPane.WARNING_MESSAGE
-						);
-				}else {
-					if (!Sistema.isPortAvailable(p)) { //HAY QUE ARREGLAR ESTA FUNCION, POR AHORA, SIEMPRE DEVUELVE TRUE
-						JOptionPane.showMessageDialog(
-							    null,
-							    "El puerto no es valido",
-							    "ERROR 003",
-							    JOptionPane.WARNING_MESSAGE
-							);
-					} else {
-						Usuario usuario = new Usuario(nombre, IP, p); 
-						this.sistema = new Sistema(usuario, this);
-
-						vInicio.setVisible(false);
-						vPrincipal.setVisible(true);
-					}
-				}
-			}catch(NumberFormatException e){
+		if (!(nombre.equals(""))) {
+			Usuario usuario = new Usuario(nombre, IP); 
+			this.sistema = new Sistema(usuario, this);
+			try {							
+				this.sistema.iniciarConexion();
+				vInicio.setVisible(false);
+				vPrincipal.setVisible(true);
+			}catch(IOException e){
 				JOptionPane.showMessageDialog(
 					    null,
-					    "El puerto solo puede contener números",
-					    "ERROR 005",
+					    "Ha fallado la conexion con el servidor, reintente.",
+					    "ERROR 010",
 					    JOptionPane.WARNING_MESSAGE
 					);
 			}
-		}else {
+		}else{
 			JOptionPane.showMessageDialog(
 				    null,
 				    "Debe completar todos los campos",
@@ -235,21 +216,7 @@ public class Controlador implements ActionListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			
-				System.out.println(sistema.getAgenda());
-				vContacto.setVisible(false);
-				
-		        vPrincipal.revalidate();
-		        vPrincipal.repaint();
-				vPrincipal.setVisible(true);
-				JOptionPane.showMessageDialog(
-					    null,
-					    "Se ha agregado el contacto " + nombre,
-					    "Contacto agregado",
-					    JOptionPane.WARNING_MESSAGE
-					);
-					
-				}
+			}
 		}else {
 			JOptionPane.showMessageDialog(
 				    null,
@@ -488,6 +455,32 @@ public class Controlador implements ActionListener {
 	
 	public void notificarDesconexion() {
 	    sistema.notificarDesconexion();
+	}
+	
+	public void NotificarRespuestaServidor(String mensaje, boolean respuesta) {
+		 SwingUtilities.invokeLater(() -> {
+             if(respuesta == true) {
+ 				System.out.println(sistema.getAgenda());
+ 				vContacto.setVisible(false);
+ 		        vPrincipal.revalidate();
+ 		        vPrincipal.repaint();
+ 				vPrincipal.setVisible(true);
+ 				cargarContactos();
+            	 JOptionPane.showMessageDialog(
+ 					    null,
+ 					    mensaje,
+ 					    "Contacto agregado",
+ 					    JOptionPane.INFORMATION_MESSAGE
+ 					);
+             }else {
+            	 JOptionPane.showMessageDialog(
+ 					    null,
+ 					    mensaje,
+ 					    "Contacto invalido",
+ 					    JOptionPane.WARNING_MESSAGE
+ 					);
+             }
+         });
 	}
 
 }

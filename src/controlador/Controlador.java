@@ -175,7 +175,7 @@ public class Controlador implements ActionListener {
 		String IP = "127.0.0.1";
 		if (!(nombre.equals(""))) {
 			Usuario usuario = new Usuario(nombre, IP); 
-			this.sistema = new Sistema(usuario, this);
+			this.sistema = new Sistema(usuario);
 			try {							
 				this.sistema.iniciarConexion();
 				vInicio.setVisible(false);
@@ -349,7 +349,7 @@ public class Controlador implements ActionListener {
 
         // Iterar sobre los mensajes del contacto actual de forma invertida, para que el ultimo aparezca arriba
 
-        ArrayList<Mensaje> invertida = new ArrayList<>(sistema.getConversacion(contactoActual).getMensajes());
+        ArrayList<Mensaje> invertida = new ArrayList<>(sistema.cargarMensajesDeConversacion(contactoActual));
 
         Collections.reverse(invertida);
         Iterator<Mensaje> it = invertida.iterator();
@@ -451,10 +451,6 @@ public class Controlador implements ActionListener {
 
 	public Contacto getContactoActual() {
 		return contactoActual;
-	}
-	
-	public void notificarDesconexion() {
-	    sistema.notificarDesconexion();
 	}
 	
 	public void NotificarRespuestaServidor(String mensaje, boolean respuesta) {

@@ -175,7 +175,7 @@ public class Controlador implements ActionListener {
 		String IP = "127.0.0.1";
 		if (!(nombre.equals(""))) {
 			Usuario usuario = new Usuario(nombre, IP); 
-			this.sistema = new Sistema(usuario, this);
+			this.sistema = new Sistema(usuario);
 			try {							
 				this.sistema.iniciarConexion();
 				vInicio.setVisible(false);
@@ -213,7 +213,6 @@ public class Controlador implements ActionListener {
 				try {
 					sistema.consultaPorContacto(nombre);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -348,31 +347,21 @@ public class Controlador implements ActionListener {
 
 	
 	private void cargarMensajes() {
-		if(contactoActual!=null) {
-	        vPrincipal.getLblNombre().setText(contactoActual.getNombre());
-	
-	        JPanel messagePanel = new JPanel();
-	        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
-	
-	        // Iterar sobre los mensajes del contacto actual de forma invertida, para que el ultimo aparezca arriba
-	
-	        ArrayList<Mensaje> invertida = new ArrayList<>(sistema.getConversacion(contactoActual).getMensajes());
-	
-	        Collections.reverse(invertida);
-	        Iterator<Mensaje> it = invertida.iterator();
-	        while (it.hasNext()) {
-	            Mensaje m = it.next();  
-	            JPanel panelMensaje = crearPanelMensaje(m);
-	            messagePanel.add(panelMensaje);
-	        }
-	
-	        messagePanel.revalidate();
-	        messagePanel.repaint();
-	        
-	        // Actualizar la vista
-	        SwingUtilities.invokeLater(() -> {
-	            vPrincipal.getSpMensajes().setViewportView(messagePanel);
-	        });
+        vPrincipal.getLblNombre().setText(contactoActual.getNombre());
+
+        JPanel messagePanel = new JPanel();
+        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
+
+        // Iterar sobre los mensajes del contacto actual de forma invertida, para que el ultimo aparezca arriba
+
+        ArrayList<Mensaje> invertida = new ArrayList<>(sistema.cargarMensajesDeConversacion(contactoActual));
+
+        Collections.reverse(invertida);
+        Iterator<Mensaje> it = invertida.iterator();
+        while (it.hasNext()) {
+            Mensaje m = it.next();  
+            JPanel panelMensaje = crearPanelMensaje(m);
+            messagePanel.add(panelMensaje);
         }
 	}
 
@@ -459,10 +448,6 @@ public class Controlador implements ActionListener {
 
 	public Contacto getContactoActual() {
 		return contactoActual;
-	}
-	
-	public void notificarDesconexion() {
-	    sistema.notificarDesconexion();
 	}
 	
 	public void NotificarRespuestaServidor(String mensaje, boolean respuesta) {

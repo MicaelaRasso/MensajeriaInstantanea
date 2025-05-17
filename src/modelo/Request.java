@@ -2,59 +2,60 @@ package modelo;
 
 import java.time.LocalDateTime;
 
-class Request {
+public class Request {
     private String operacion;
-	private Usuario emisor;
+    private Usuario emisor;
     private Usuario receptor;
     private String contenido;
     private LocalDateTime fechaYHora;
-    
-    
-    public Request() {
-    }
-    
+
+    public Request() {}
+
+    // Getters y Setters
     public String getOperacion() {
-		return operacion;
-	}
+        return operacion;
+    }
 
-	public void setOperacion(String operacion) {
-		this.operacion = operacion;
-	}
+    public void setOperacion(String operacion) {
+        this.operacion = operacion;
+    }
 
-	public Usuario getEmisor() {
-		return emisor;
-	}
+    public Usuario getEmisor() {
+        return emisor;
+    }
 
-	public void setEmisor(Usuario emisor) {
-		this.emisor = emisor;
-	}
+    public void setEmisor(Usuario emisor) {
+        this.emisor = emisor;
+    }
 
-	public Usuario getReceptor() {
-		return receptor;
-	}
+    public Usuario getReceptor() {
+        return receptor;
+    }
 
-	public void setReceptor(Usuario receptor) {
-		this.receptor = receptor;
-	}
+    public void setReceptor(Usuario receptor) {
+        this.receptor = receptor;
+    }
 
-	public void setNombreReceptor(String nombre) {
-		this.receptor.setNombre(nombre);
-	}	
-		
-	public String getContenido() {
-		return contenido;
-	}
+    public void setNombreReceptor(String nombre) {
+        if (this.receptor == null) {
+            this.receptor = new Usuario();
+        }
+        this.receptor.setNombre(nombre);
+    }
 
-	public void setContenido(String contenido) {
-		this.contenido = contenido;
-	}
+    public String getContenido() {
+        return contenido;
+    }
 
-	public LocalDateTime getFechaYHora() {
-		return fechaYHora;
-	}
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
+    }
 
-	public void setFechaYHora(LocalDateTime fechaYHora) {
-		this.fechaYHora = fechaYHora;
-	}
+    public LocalDateTime getFechaYHora() {
+        return fechaYHora;
+    }
+
+    public void setFechaYHora(LocalDateTime fechaYHora) {
+        this.fechaYHora = fechaYHora;
+    }
 }
-

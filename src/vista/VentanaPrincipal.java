@@ -174,7 +174,7 @@ public class VentanaPrincipal extends JFrame {
             if (opcion == javax.swing.JOptionPane.YES_OPTION) {
                 // Llamamos a la desconexión antes de salir
                 if (controlador != null) {
-                    controlador.notificarDesconexion();
+                    //controlador.notificarDesconexion();
                 }
                 System.exit(0);
             }

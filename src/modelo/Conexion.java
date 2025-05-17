@@ -24,7 +24,7 @@ public class Conexion {
     
     public void conectar() throws IOException {
     	try {    		
-    		this.socket = new Socket("127.0.0.1", 5000);
+    		this.socket = new Socket(ConfigLoader.host, ConfigLoader.port);
     		this.out = new PrintWriter(socket.getOutputStream(), true);
     		this.recibirRequest(socket);
     		this.connected = true;

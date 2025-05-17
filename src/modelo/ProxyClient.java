@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit;
  * y reintentos (fail-over).
  */
 public class ProxyClient {
-    private static final String PROXY_HOST = "127.0.0.1";
-    private static final int PROXY_PORT = 60000;
+    private static final String PROXY_HOST = ConfigLoader.host;
+    private static final int PROXY_PORT = ConfigLoader.port;
     private static final int MAX_RETRIES = 3;
     private Socket socket;
     private BufferedReader in;

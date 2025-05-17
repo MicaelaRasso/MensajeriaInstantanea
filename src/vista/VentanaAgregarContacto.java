@@ -35,7 +35,7 @@ public class VentanaAgregarContacto extends JFrame {
 
 
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 280, 320);
+		setBounds(100, 100, 280, 200);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setUndecorated(true);
@@ -68,7 +68,7 @@ public class VentanaAgregarContacto extends JFrame {
 		
 		btnAgregar = new JButton("Agregar");
         btnAgregar.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
-		btnAgregar.setBounds(150, 270, 90, 20);
+		btnAgregar.setBounds(150, 120, 90, 20);
         btnAgregar.setBorder(BorderFactory.createLineBorder(cBorde, 2));
         btnAgregar.setForeground(cTexto);
         btnAgregar.setBackground(cBoton);
@@ -76,7 +76,7 @@ public class VentanaAgregarContacto extends JFrame {
 
 		btnVolver = new JButton("Volver");
         btnVolver.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
-		btnVolver.setBounds(40, 270, 90, 20);
+		btnVolver.setBounds(40, 120, 90, 20);
         btnVolver.setBorder(BorderFactory.createLineBorder(cBorde, 2));
         btnVolver.setForeground(cTexto);
         btnVolver.setBackground(cBoton);

@@ -105,9 +105,11 @@ public class Sistema {
 		
 	public void crearConversacion(Contacto contacto) {
 		//creo la conversacion y la guardo en el contacto
-		Conversacion conv = new Conversacion(contacto);
-		contacto.setConversacion(conv);
-		conversaciones.add(conv);
+		if(contacto.getConversacion() == null) {
+			Conversacion conv = new Conversacion(contacto);
+			contacto.setConversacion(conv);
+			conversaciones.add(conv);			
+		}
 	}
 
 	public Conversacion getConversacion(Contacto c) {

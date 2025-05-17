@@ -21,28 +21,6 @@ public class Conexion {
             throw e;
         }
     }
-    /*
-    public void iniciar() throws IOException {
-        Runnable servidorRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    serverSocket = new ServerSocket(puerto);
-                    System.out.println("Usuario escuchando en el puerto " + puerto);
-
-                    while (true) {
-                        Socket socket = serverSocket.accept();
-                        System.out.println("Nueva conexión desde el servidor " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort());
-                        recibirRequest(socket);
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        new Thread(servidorRunnable).start();
-    }*/
     
     public void conectar() throws IOException {
     	try {    		
@@ -74,31 +52,8 @@ public class Conexion {
         out.println(Json);  // Envía el mensaje como Json
         out.flush();
         System.out.println("Mensaje enviado: " + Json);
-        //cerrarConexion();
     }
-    
-    /*public void recibirRequest(Socket serverSocket) {
-		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-			String requestRecibido = in.readLine();
-			System.out.println("Recibiendo una respuesta...");
-			if (requestRecibido != null) {
-				System.out.println("Request recibido: " + requestRecibido);
-				Request requestObj = JsonConverter.fromJson(requestRecibido);
-				System.out.println(requestObj.getContenido());
-				if (requestObj.getOperacion().equals("mensaje")) {
-					sistema.recibirMensaje(requestObj);
-				} else if (requestObj.getOperacion().equals("consulta")) {
-					sistema.recibirConsulta(requestObj);
-				} else if (requestObj.getOperacion().equals("registro")) {
-					//sistema.recibirRegistro(rObj);
-				}
-			}
-			
-		} catch (IOException e) {
-			System.err.println("Error al recibir el mensaje: " + e.getMessage());
-		}
-	}*/
+  
     
     public void recibirRequest(Socket socket) {
         new Thread(() -> {  // Hacerlo en un hilo separado para que pueda recibir varios mensajes

@@ -5,15 +5,20 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import controlador.Controlador;
+
 public class Sistema {
     private Usuario usuario;
     private ProxyClient proxyClient;
     private HashMap<String, Contacto> agenda = new HashMap<>();
     private ArrayList<Conversacion> conversaciones = new ArrayList<>();
+    private Controlador controlador;
 
-    public Sistema(Usuario usuario) {
+    public Sistema(Usuario usuario, Controlador controlador) {
         this.usuario = usuario;
-        this.proxyClient = new ProxyClient();
+        this.proxyClient = new ProxyClient(this);;
+        this.controlador = controlador;
+        proxyClient.start();
     }
 
     public void iniciarConexion() throws IOException {
@@ -25,7 +30,22 @@ public class Sistema {
         request.setOperacion("registro");
         request.setEmisor(this.usuario);
         request.setReceptor(new Usuario());
-        proxyClient.send(request);
+        try {
+			try {
+				Request result = proxyClient.send(request);
+				if(result != null && result.getContenido().equals("en uso")) {
+					throw new IOException("en uso");
+				}
+			}catch(IOException e){
+				throw new IOException();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     public void enviarMensaje(String mensaje, Contacto contacto) throws IOException {
@@ -37,10 +57,17 @@ public class Sistema {
         Conversacion conv = contacto.getConversacion();
         conv.agregarMensaje(mensaje, request.getFechaYHora(), usuario);
 
-        proxyClient.send(request);
+        try {
+        	proxyClient.send(request);
+        }catch(IOException e){
+        	throw new IOException();
+        } catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
-    public void recibirMensaje(Request request) {
+    public synchronized void recibirMensaje(Request request) {
         String nombre = request.getEmisor().getNombre();
         String contenido = request.getContenido();
         LocalDateTime fechaYHoraStr = request.getFechaYHora();
@@ -66,14 +93,23 @@ public class Sistema {
         request.setEmisor(this.usuario);
         request.setContenido(nombreContacto);
 
-        Request respuesta = proxyClient.send(request);
-
-        if (!respuesta.getContenido().equals("")) {
-            if (!agenda.containsKey(respuesta.getContenido())) {
-                Contacto c = new Contacto(respuesta.getContenido());
-                agenda.put(c.getNombre(), c);
-            }
-        }
+        Request respuesta;
+		try {
+			respuesta = proxyClient.send(request);
+	        if (!respuesta.getContenido().equals("")) {
+	            if (!agenda.containsKey(respuesta.getContenido())) {
+	                Contacto c = new Contacto(respuesta.getContenido());
+	                agenda.put(c.getNombre(), c);
+	                this.controlador.NotificarRespuestaServidor("El contacto ha sido agregado exitosamente", true);
+	            }
+	        }else {
+	        	this.controlador.NotificarRespuestaServidor("El contacto no existe", false);
+	        }
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
     }
 
     public void crearConversacion(Contacto contacto) {

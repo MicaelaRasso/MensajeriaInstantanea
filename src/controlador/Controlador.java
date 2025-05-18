@@ -175,18 +175,27 @@ public class Controlador implements ActionListener {
 		String IP = "127.0.0.1";
 		if (!(nombre.equals(""))) {
 			Usuario usuario = new Usuario(nombre, IP); 
-			this.sistema = new Sistema(usuario);
+			this.sistema = new Sistema(usuario,this);
 			try {							
 				this.sistema.iniciarConexion();
 				vInicio.setVisible(false);
 				vPrincipal.setVisible(true);
 			}catch(IOException e){
-				JOptionPane.showMessageDialog(
-					    null,
-					    "Ha fallado la conexion con el servidor, reintente.",
-					    "ERROR 010",
-					    JOptionPane.WARNING_MESSAGE
-					);
+				if(e.equals("en uso")) {
+					JOptionPane.showMessageDialog(
+							null,
+							"El usuario ingresado ya esta en uso.",
+							"ERROR 011",
+							JOptionPane.WARNING_MESSAGE
+						);					
+				}else {
+					JOptionPane.showMessageDialog(
+							null,
+							"Ha fallado la conexion con el servidor, reintente.",
+							"ERROR 010",
+							JOptionPane.WARNING_MESSAGE
+						);	
+				}
 			}
 		}else{
 			JOptionPane.showMessageDialog(

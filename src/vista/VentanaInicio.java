@@ -37,7 +37,7 @@ public class VentanaInicio extends JFrame{
 
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 300, 300);
+		setBounds(100, 100, 300, 200);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setUndecorated(true);
@@ -81,7 +81,7 @@ public class VentanaInicio extends JFrame{
 		
 		btnIngresar = new JButton("Ingresar");
 		btnIngresar.setFont(new Font("Segoe UI Semibold", Font.BOLD, 12));
-		btnIngresar.setBounds(160, 220, 90, 23);
+		btnIngresar.setBounds(160, 150, 90, 23);
 		btnIngresar.setBorder(BorderFactory.createLineBorder(cBorde, 2));
 		btnIngresar.setForeground(cTexto);
 		btnIngresar.setBackground(cBoton);

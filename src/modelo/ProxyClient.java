@@ -2,7 +2,9 @@ package modelo;
 
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Encapsula la lógica de conexión con el proxy/monitor en puerto 60000,
@@ -10,8 +12,8 @@ import java.util.concurrent.*;
  * y reintentos (fail-over).
  */
 public class ProxyClient extends Thread {
-    private static final String PROXY_HOST = "127.0.0.1";
-    private static final int PROXY_PORT = 60000;
+    private static final String PROXY_HOST = ConfigLoader.host;
+    private static final int PROXY_PORT = ConfigLoader.port;
     private static final int MAX_RETRIES = 3;
 
     private Socket socket;

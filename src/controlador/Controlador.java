@@ -209,7 +209,7 @@ public class Controlador implements ActionListener {
 	
 	private void agregarContacto() {
 		String nombre = vContacto.getTfNombre().getText();
-		if (!(nombre.equals(""))) {
+		if (!(nombre.equals("") || nombre.equals(sistema.getUsuario().getNombre()))) {
 			if(sistema.getAgenda().containsKey(nombre)){
 				//Los nicknames son unicos, no debería suceder
 				JOptionPane.showMessageDialog(
@@ -222,23 +222,29 @@ public class Controlador implements ActionListener {
 				try {
 					sistema.consultaPorContacto(nombre);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}else {
+			if(nombre.equals("")) {
 			JOptionPane.showMessageDialog(
 				    null,
 				    "Debe ingresar un nombre de contacto",
 				    "ERROR 001",
 				    JOptionPane.WARNING_MESSAGE
 				);
-			}
+			}else {
+				JOptionPane.showMessageDialog(
+					    null,
+					    "No puede agregarse usted como contacto",
+					    "ERROR 001",
+					    JOptionPane.WARNING_MESSAGE
+					);	
+			}	
+		}
 	}
 	
 	public void crearConversacion(Contacto contacto) {
-		//revisa array de conversaciones, si ya existe, no la crea
-		
 		sistema.crearConversacion(contacto);
 	}
 	
@@ -246,7 +252,6 @@ public class Controlador implements ActionListener {
 		try {
 			sistema.enviarMensaje(m, contactoActual);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -367,14 +372,6 @@ public class Controlador implements ActionListener {
             JPanel panelMensaje = crearPanelMensaje(m);
             messagePanel.add(panelMensaje);
         }
-
-        messagePanel.revalidate();
-        messagePanel.repaint();
-        
-        // Actualizar la vista
-        SwingUtilities.invokeLater(() -> {
-            vPrincipal.getSpMensajes().setViewportView(messagePanel);
-        });
 	}
 
 	public void cargarConversaciones() {

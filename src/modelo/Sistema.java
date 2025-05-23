@@ -36,19 +36,15 @@ public class Sistema {
 				if(result != null && result.getContenido().equals("en uso")) {
 					throw new IOException("en uso");
 				}
-			}catch(IOException e){
-				throw new IOException();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
 
-    public void enviarMensaje(String mensaje, Contacto contacto) throws IOException {
+    public void enviarMensaje(String mensaje, Contacto contacto) throws IOException, InterruptedException {
         Request request = crearRequest();
         request.setOperacion("mensaje");
         request.setNombreReceptor(contacto.getNombre());
@@ -57,14 +53,7 @@ public class Sistema {
         Conversacion conv = contacto.getConversacion();
         conv.agregarMensaje(mensaje, request.getFechaYHora(), usuario);
 
-        try {
-        	proxyClient.send(request);
-        }catch(IOException e){
-        	throw new IOException();
-        } catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        proxyClient.send(request);
     }
 
     public synchronized void recibirMensaje(Request request) {
@@ -96,6 +85,7 @@ public class Sistema {
         Request respuesta;
 		try {
 			respuesta = proxyClient.send(request);
+	        System.out.println("Contacto por agregar: "+ respuesta);
 	        if (!respuesta.getContenido().equals("")) {
 	            if (!agenda.containsKey(respuesta.getContenido())) {
 	                Contacto c = new Contacto(respuesta.getContenido());

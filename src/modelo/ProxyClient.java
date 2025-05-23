@@ -32,7 +32,7 @@ public class ProxyClient extends Thread {
         socket = new Socket(PROXY_HOST, PROXY_PORT);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
-        System.out.println("Conectado al Proxy en " + PROXY_HOST + ":" + PROXY_PORT);
+//        System.out.println("Conectado al Proxy en " + PROXY_HOST + ":" + PROXY_PORT);
     }
 
     @Override
@@ -42,12 +42,12 @@ public class ProxyClient extends Thread {
 
             String header;
             while ((header = in.readLine()) != null) {
-                System.out.println("[RECV HEADER] " + header);
+//                System.out.println("[RECV HEADER] " + header);
                 String payload = in.readLine(); // JSON o string plano
-                System.out.println("[RECV PAYLOAD] " + payload);
+//                System.out.println("[RECV PAYLOAD] " + payload);
 
                 String op = parseField(header, "OPERACION");
-                System.out.println(op);
+//                System.out.println(op);
 
                 if ("GET_MESSAGE".equalsIgnoreCase(op)) {
                     // Mensaje espontáneo: notificar al sistema
@@ -87,23 +87,26 @@ public class ProxyClient extends Thread {
 
         IOException lastEx = null;
 
-        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-            try {
+        int attempt = 1;
+        while((socket == null || socket.isClosed()) && attempt <= MAX_RETRIES)
+        /*for (int attempt = 1; ; attempt++)*/ {
+            attempt++;
+        	try {
                 if (socket == null || socket.isClosed()) {
-                    System.out.println("Reconectando...");
+                 //   System.out.println("Reconectando...");
                     connect();
                 }
-
-                // Enviar header y payload
-                out.println(header);
-                out.println(payload);
-
-                // Leer ACK (bloqueantemente pero sincronizado)
-                String ack = in.readLine();
-                if (!"ACK".equals(ack)) {
-                    throw new IOException("ACK inválido: " + ack);
+	                // Enviar header y payload
+	                out.println(header);
+	                out.println(payload);
+	                
+	
+	                // Leer ACK (bloqueantemente pero sincronizado)
+	                String ack = in.readLine();
+	                if (!"ACK".equals(ack)) {
+	                    throw new IOException("ACK inválido: " + ack);
+	                    
                 }
-
                 // Esperar respuesta del hilo lector (hasta 5 segundos)
                 Request resp = responseQueue.poll(5, TimeUnit.SECONDS);
                 if (resp == null) {
@@ -114,14 +117,16 @@ public class ProxyClient extends Thread {
 
             } catch (IOException e) {
                 lastEx = e;
-                close();
+    //            close();
                 Thread.sleep(1000); // Espera antes de reintentar
                 System.out.println("Reintentando conexión (" + attempt + "/" + MAX_RETRIES + ")");
             }
         }
         throw lastEx;
+        
     }
 
+    
     public void close() {
         try {
             if (socket != null) socket.close();
@@ -129,6 +134,7 @@ public class ProxyClient extends Thread {
         } catch (IOException ignored) {}
     }
 
+    
     private String parseField(String header, String key) {
         for (String part : header.split(";")) {
             if (part.trim().toUpperCase().startsWith(key.toUpperCase() + ":")) {

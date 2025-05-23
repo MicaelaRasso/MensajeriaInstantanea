@@ -82,7 +82,7 @@ public class Controlador implements ActionListener {
 	}
 
 	public static void main(String[] args) {
-		
+
 		VentanaInicio inicio = new VentanaInicio();
 		VentanaPrincipal principal = new VentanaPrincipal(null);
 		VentanaAgregarContacto contacto = new VentanaAgregarContacto();
@@ -251,7 +251,7 @@ public class Controlador implements ActionListener {
 	public void enviarMensaje(String m, Contacto contactoActual){
 		try {
 			sistema.enviarMensaje(m, contactoActual);
-		} catch (IOException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

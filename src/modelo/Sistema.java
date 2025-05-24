@@ -114,8 +114,12 @@ public class Sistema {
             conv = new Conversacion(cont);
             cont.setConversacion(conv);
             conversaciones.add(conv);
+            System.out.println("Nueva conversación creada para: " + nombre);
         }
         conv.recibirMensaje(contenido, fechaYHoraStr, cont);
+        controlador.nuevoMensaje();
+        controlador.cargarContactos();
+        controlador.cargarConversaciones();
     }
 
     public void consultaPorContacto(String nombreContacto) throws IOException {

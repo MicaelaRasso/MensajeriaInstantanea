@@ -301,10 +301,12 @@ public class Controlador implements ActionListener {
 	}
 	
 	public void nuevoMensaje() {
+	    System.out.println("[DEBUG Controlador] nuevoMensaje() llamado");
 	    SwingUtilities.invokeLater(() -> {
 	        cargarMensajes();
 	    });
 	}
+
 	
 	private JPanel crearPanelMensaje(Mensaje m) {
 	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -356,6 +358,42 @@ public class Controlador implements ActionListener {
 
 	
 	private void cargarMensajes() {
+	    if (contactoActual == null) {
+	        System.out.println("[DEBUG] cargarMensajes(): contactoActual == null, no hago nada");
+	        return;
+	    }
+
+	    System.out.println("[DEBUG] cargarMensajes(): inicio para contacto " + contactoActual.getNombre());
+
+	    vPrincipal.getLblNombre().setText(contactoActual.getNombre());
+
+	    // Panel que contendrá los mensajes
+	    JPanel messagePanel = new JPanel();
+	    messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
+
+	    // Obtengo la lista original y la invierto
+	    ArrayList<Mensaje> invertida = new ArrayList<>(sistema.cargarMensajesDeConversacion(contactoActual));
+	    System.out.println("[DEBUG] cargarMensajes(): mensajes totales sin invertir = " + invertida.size());
+
+	    Collections.reverse(invertida);
+	    System.out.println("[DEBUG] cargarMensajes(): mensajes totales invertidos = " + invertida.size());
+
+	    for (Mensaje m : invertida) {
+	        System.out.println("[DEBUG] cargarMensajes(): agregando mensaje al panel = " + m.getContenido());
+	        JPanel panelMensaje = crearPanelMensaje(m);
+	        messagePanel.add(panelMensaje);
+	    }
+
+	    System.out.println("[DEBUG] cargarMensajes(): componentes en messagePanel = " 
+	        + messagePanel.getComponentCount());
+
+	    // Finalmente lo muestro
+	    vPrincipal.getSpMensajes().setViewportView(messagePanel);
+	    System.out.println("[DEBUG] cargarMensajes(): viewport seteado correctamente");
+	}
+
+	
+	/*private void cargarMensajes() {
         vPrincipal.getLblNombre().setText(contactoActual.getNombre());
 
         JPanel messagePanel = new JPanel();
@@ -372,7 +410,7 @@ public class Controlador implements ActionListener {
             JPanel panelMensaje = crearPanelMensaje(m);
             messagePanel.add(panelMensaje);
         }
-	}
+	}*/
 
 	public void cargarConversaciones() {
         DefaultListModel<String> modelo = new DefaultListModel<>();

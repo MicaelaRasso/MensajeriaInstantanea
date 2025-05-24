@@ -1,6 +1,9 @@
 package modelo;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,13 +15,27 @@ public class Sistema {
     private ProxyClient proxyClient;
     private HashMap<String, Contacto> agenda = new HashMap<>();
     private ArrayList<Conversacion> conversaciones = new ArrayList<>();
+    private final Observable<Request> responseObservable = new Observable<>();
+    private final Observable<Request> messageObservable = new Observable<>();
+    private Sender sender;
     private Controlador controlador;
+    private BufferedReader in;
+    private PrintWriter out;
 
     public Sistema(Usuario usuario, Controlador controlador) {
-        this.usuario = usuario;
-        this.proxyClient = new ProxyClient(this);;
+    	this.usuario = usuario;
+        this.proxyClient = new ProxyClient(this,responseObservable,messageObservable);
+        try {
+        	this.proxyClient.connect();
+        	out = this.proxyClient.getOut();
+        	in = this.proxyClient.getIn();
+        }catch(IOException e){
+        	System.out.println("Error al conectar");
+        }
         this.controlador = controlador;
-        proxyClient.start();
+
+        // Observador de mensajes
+        messageObservable.addObserver(req -> recibirMensaje(req));
     }
 
     public void iniciarConexion() throws IOException {
@@ -30,19 +47,22 @@ public class Sistema {
         request.setOperacion("registro");
         request.setEmisor(this.usuario);
         request.setReceptor(new Usuario());
+        
+        Observer<Request> respuestaRegistro = new Observer<>() {
+            @Override
+            public void update(Request response) {
+                if ("en uso".equals(response.getContenido())) {
+                    System.out.println("Nombre en uso");
+                } else {
+                    System.out.println("Usuario registrado");
+                }
+                responseObservable.removeObserver(this); // auto-remover
+            }
+        };
+        responseObservable.addObserver(respuestaRegistro);
         try {
-			try {
-				Request result = proxyClient.send(request);
-				if(result != null && result.getContenido().equals("en uso")) {
-					throw new IOException("en uso");
-				}
-			}catch(IOException e){
-				throw new IOException();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
+			proxyClient.send(request);
+		} catch (InterruptedException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -56,12 +76,22 @@ public class Sistema {
 
         Conversacion conv = contacto.getConversacion();
         conv.agregarMensaje(mensaje, request.getFechaYHora(), usuario);
-
+        
+        Observer<Request> respuestaMensaje = new Observer<>() {
+            @Override
+            public void update(Request response) {
+                if ("en uso".equals(response.getContenido())) {
+                    System.out.println("Nombre en uso");
+                } else {
+                    System.out.println("Usuario registrado");
+                }
+                responseObservable.removeObserver(this); // auto-remover
+            }
+        };
+        responseObservable.addObserver(respuestaMensaje);
         try {
-        	proxyClient.send(request);
-        }catch(IOException e){
-        	throw new IOException();
-        } catch (InterruptedException e) {
+			proxyClient.send(request);
+		} catch (InterruptedException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -71,6 +101,7 @@ public class Sistema {
         String nombre = request.getEmisor().getNombre();
         String contenido = request.getContenido();
         LocalDateTime fechaYHoraStr = request.getFechaYHora();
+        System.out.println("Mensaje recibido");
 
         Contacto cont;
         Conversacion conv;
@@ -92,11 +123,26 @@ public class Sistema {
         request.setOperacion("consulta");
         request.setEmisor(this.usuario);
         request.setContenido(nombreContacto);
-
-        Request respuesta;
 		try {
-			respuesta = proxyClient.send(request);
-	        if (!respuesta.getContenido().equals("")) {
+			Observer<Request> respuestaMensaje = new Observer<>() {
+	            @Override
+	            public void update(Request response) {
+	            	if (!response.getContenido().equals("")) {
+	    	            if (!agenda.containsKey(response.getContenido())) {
+	    	                Contacto c = new Contacto(response.getContenido());
+	    	                agenda.put(c.getNombre(), c);
+	    	                controlador.NotificarRespuestaServidor("El contacto ha sido agregado exitosamente", true);
+	    	            }
+	    	        }else {
+	    	        	System.out.println("el contacto no existe");
+	    	        	controlador.NotificarRespuestaServidor("El contacto no existe", false);
+	    	        }
+	            	responseObservable.removeObserver(this); // auto-remover
+	            }
+	        };
+	        responseObservable.addObserver(respuestaMensaje);
+	        proxyClient.send(request);
+	        /*if (!respuesta.getContenido().equals("")) {
 	            if (!agenda.containsKey(respuesta.getContenido())) {
 	                Contacto c = new Contacto(respuesta.getContenido());
 	                agenda.put(c.getNombre(), c);
@@ -104,7 +150,7 @@ public class Sistema {
 	            }
 	        }else {
 	        	this.controlador.NotificarRespuestaServidor("El contacto no existe", false);
-	        }
+	        }*/
 		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

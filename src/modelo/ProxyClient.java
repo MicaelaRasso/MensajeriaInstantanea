@@ -6,12 +6,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import controlador.Controlador;
+
 /**
  * Encapsula la lógica de conexión con el proxy/monitor en puerto 60000,
  * envío de requests y recepción de respuestas con ACK + payload JSON,
  * y reintentos (fail-over).
  */
-public class ProxyClient extends Thread {
+public class ProxyClient {
     private static final String PROXY_HOST = ConfigLoader.host;
     private static final int PROXY_PORT = ConfigLoader.port;
     private static final int MAX_RETRIES = 3;
@@ -20,23 +22,51 @@ public class ProxyClient extends Thread {
     private BufferedReader in;
     private PrintWriter out;
     private Sistema sistema;
-
+    private Sender sender;
+    Observable<Request> responseObservable;
+    Observable<Request> messageObservable;
     // Cola bloqueante para respuestas (una a la vez, FIFO)
     private final BlockingQueue<Request> responseQueue = new ArrayBlockingQueue<>(1);
 
-    public ProxyClient(Sistema s) {
+    public ProxyClient(Sistema s, Observable<Request> r, Observable<Request> m) {
         this.sistema = s;
+        this.responseObservable = r;
+        this.messageObservable = m;
     }
 
-    private void connect() throws IOException {
+    public void connect() throws IOException {
         socket = new Socket(PROXY_HOST, PROXY_PORT);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
-//        System.out.println("Conectado al Proxy en " + PROXY_HOST + ":" + PROXY_PORT);
+    	sender = new Sender(out);
+        Receiver receiver = new Receiver(in, responseObservable, messageObservable);
+        receiver.start();
+        System.out.println("Conectado al Proxy en " + PROXY_HOST + ":" + PROXY_PORT);
+    }
+    
+    public void send(Request req) throws InterruptedException, IOException {
+    	IOException lastEx = null;
+    	for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                if (socket == null || socket.isClosed()) {
+                    System.out.println("Reconectando...");
+                    connect();
+                }
+                
+                sender.sendRequest(req);
+                return;
+            } catch (IOException e) {
+                lastEx = e;
+                System.out.println("entra al catch");
+                close();
+                Thread.sleep(1000); // Espera antes de reintentar
+                System.out.println("Reintentando conexión (" + attempt + "/" + MAX_RETRIES + ")");
+            }
+        }
+    	throw lastEx;
     }
 
-    @Override
-    public void run() {
+    /*public void run() {
         try {
             connect();
 
@@ -75,9 +105,9 @@ public class ProxyClient extends Thread {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    public Request send(Request req) throws IOException, InterruptedException {
+    /*public Request send(Request req) throws IOException, InterruptedException {
         String header = String.format(
                 "OPERACION:%s;USER:%s",
                 "CLIENT_REQ",
@@ -90,7 +120,7 @@ public class ProxyClient extends Thread {
         int attempt = 1;
         while((socket == null || socket.isClosed()) && attempt <= MAX_RETRIES)
         /*for (int attempt = 1; ; attempt++)*/ {
-            attempt++;
+        /*    attempt++;
         	try {
                 if (socket == null || socket.isClosed()) {
                  //   System.out.println("Reconectando...");
@@ -117,15 +147,13 @@ public class ProxyClient extends Thread {
 
             } catch (IOException e) {
                 lastEx = e;
-    //            close();
+            //    close();
                 Thread.sleep(1000); // Espera antes de reintentar
                 System.out.println("Reintentando conexión (" + attempt + "/" + MAX_RETRIES + ")");
             }
         }
         throw lastEx;
-        
-    }
-
+    }*/
     
     public void close() {
         try {
@@ -143,4 +171,12 @@ public class ProxyClient extends Thread {
         }
         return "";
     }
+
+	public BufferedReader getIn() {
+		return in;
+	}
+
+	public PrintWriter getOut() {
+		return out;
+	}
 }

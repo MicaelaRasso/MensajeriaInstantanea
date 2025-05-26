@@ -38,7 +38,7 @@ public class Receiver extends Thread {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
